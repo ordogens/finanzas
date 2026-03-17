@@ -1,0 +1,16 @@
+export type MovimientoTipo = "income" | "expense";
+
+export type MovimientoItem = {
+  id: number;
+  category: string;
+  description: string;
+  amount: number;
+  date: string;
+  type: MovimientoTipo;
+};
+
+export type MovimientoSummary = {
+  ingresos: number;
+  gastos: number;
+  balance: number;
+};
