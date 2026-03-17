@@ -93,73 +93,88 @@ export const ListaMovimientos = () => {
   const { movimientos, startEditing, deleteMovimiento } = useFinanzas();
 
   return (
-    <section className="border-y border-slate-200 py-5">
-      <h3 className="mb-4 text-xl font-bold text-slate-700">
-        Movimientos Recientes
-      </h3>
+    <section className="py-5">
+      <div className="mb-4 flex items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+            Actividad
+          </p>
+          <h3 className="text-xl font-bold text-slate-800">Movimientos Recientes</h3>
+        </div>
+        <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-500 shadow-sm">
+          {movimientos.length} registros
+        </div>
+      </div>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/95 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)] ring-1 ring-slate-100">
         {movimientos.length === 0 ? (
-          <div className="px-4 py-8 text-center text-sm text-slate-500 sm:px-5">
+          <div className="px-6 py-12 text-center text-sm text-slate-500">
             Aún no hay movimientos registrados.
           </div>
-        ) : null}
+        ) : (
+          <div className="max-h-[28rem] overflow-y-auto px-2 py-2 sm:max-h-[32rem]">
+            {movimientos.map((movimiento, index) => {
+              const amountColor =
+                movimiento.type === "income" ? "text-green-700" : "text-slate-700";
+              const sign = movimiento.type === "income" ? "+" : "-";
+              const iconKey = categoryIconMap[movimiento.category] ?? "basket";
+              const label =
+                categoriasLabels[movimiento.category as keyof typeof categoriasLabels] ??
+                movimiento.category;
+              const secondaryText = movimiento.description.trim() || label;
 
-        {movimientos.map((movimiento, index) => {
-          const amountColor =
-            movimiento.type === "income" ? "text-green-700" : "text-slate-700";
-          const sign = movimiento.type === "income" ? "+" : "-";
-          const iconKey = categoryIconMap[movimiento.category] ?? "basket";
-          const label =
-            categoriasLabels[movimiento.category as keyof typeof categoriasLabels] ??
-            movimiento.category;
-          const secondaryText = movimiento.description.trim() || label;
+              return (
+                <article
+                  key={movimiento.id}
+                  className={`mb-2 flex flex-col gap-3 rounded-2xl border border-transparent bg-slate-50/80 px-4 py-4 transition hover:border-slate-200 hover:bg-white hover:shadow-sm sm:px-5 lg:flex-row lg:items-center ${
+                    index === movimientos.length - 1 ? "mb-0" : ""
+                  }`}
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+                      {iconMap[iconKey]}
+                    </div>
 
-          return (
-            <article
-              key={movimiento.id}
-              className={`flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center ${
-                index !== movimientos.length - 1 ? "border-b border-slate-200" : ""
-              }`}
-            >
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-50">
-                  {iconMap[iconKey]}
-                </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-slate-700 sm:text-base">
+                        <span className={amountColor}>{sign} </span>
+                        <span className={amountColor}>
+                          {formatCurrency(movimiento.amount)}
+                        </span>{" "}
+                        {secondaryText}
+                      </p>
+                      <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
+                        {label}
+                      </p>
+                    </div>
+                  </div>
 
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm text-slate-600 sm:text-base">
-                    <span className={`font-bold ${amountColor}`}>{sign} </span>
-                    <span className={`font-bold ${amountColor}`}>
-                      {formatCurrency(movimiento.amount)}
-                    </span>{" "}
-                    {secondaryText}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-2 lg:ml-auto">
-                <p className="text-sm text-slate-400 sm:text-base">{movimiento.date}</p>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => startEditing(movimiento.id)}
-                    className="rounded-lg border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => deleteMovimiento(movimiento.id)}
-                    className="rounded-lg border border-red-200 px-2 py-1 text-xs font-semibold text-red-500 transition hover:bg-red-50"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            </article>
-          );
-        })}
+                  <div className="flex flex-wrap items-center justify-between gap-3 lg:ml-auto lg:min-w-[16rem]">
+                    <p className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-500 ring-1 ring-slate-200">
+                      {movimiento.date}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startEditing(movimiento.id)}
+                        className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-100"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteMovimiento(movimiento.id)}
+                        className="rounded-full border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-500 transition hover:border-red-300 hover:bg-red-50"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );
