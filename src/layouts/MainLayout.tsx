@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import monify from "../assets/monify.png";
-import { History, Menu, X } from "lucide-react";
+import { History, House, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
@@ -9,10 +9,16 @@ type Props = {
 
 const menuItems = [
   {
+    label: "Inicio",
+    path: "/",
+    icon: House,
+  },
+  {
     label: "Historial",
     path: "/historial",
     icon: History,
   },
+  
 ];
 
 export const MainLayout = ({ children }: Props) => {
@@ -45,7 +51,7 @@ export const MainLayout = ({ children }: Props) => {
         <header className="flex items-center justify-between border-b border-gray-300 bg-white px-4 py-3">
           <div className="flex items-center gap-3">
             <div
-              onClick={() => navigate("/")}
+              onClick={() => handleNavigate("/")}
               className="flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-black bg-white"
             >
               <img

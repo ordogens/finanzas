@@ -14,3 +14,10 @@ export type MovimientoSummary = {
   gastos: number;
   balance: number;
 };
+
+export type AhorroSummary = {
+  ahorrado: number;
+  meta: number;
+  restante: number;
+  progreso: number;
+};

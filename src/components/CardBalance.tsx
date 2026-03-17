@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { useFinanzas } from "../context/FinanzasContext";
+import { useState, type FormEvent, type ReactNode } from "react";
+import { useFinanzas } from "../context/useFinanzas";
 import type { BalanceCardIcon } from "../types/cardBalance";
 
 const WalletIcon = () => (
@@ -76,7 +76,22 @@ const formatCurrency = (value: number) =>
   }).format(value);
 
 export const CardBalance = () => {
-  const { summary } = useFinanzas();
+  const { summary, ahorro, updateAhorroMeta } = useFinanzas();
+  const [metaInput, setMetaInput] = useState("");
+  const [isEditingGoal, setIsEditingGoal] = useState(ahorro.meta === 0);
+
+  const handleSubmitGoal = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const nextGoal = Number(metaInput);
+
+    if (!Number.isFinite(nextGoal) || nextGoal < 0) {
+      return;
+    }
+
+    updateAhorroMeta(nextGoal);
+    setIsEditingGoal(false);
+  };
 
   const balanceCards = [
     {
@@ -103,29 +118,125 @@ export const CardBalance = () => {
   ];
 
   return (
-    <section className="grid grid-cols-3 gap-3 sm:gap-4">
-      {balanceCards.map((card) => (
-        <article
-          key={card.title}
-          className={`rounded-xl bg-gradient-to-br ${card.bgClass} px-3 py-3 text-white shadow-md transition-transform duration-200 hover:-translate-y-0.5 sm:px-5 sm:py-4`}
-        >
-          <div className="flex flex-col items-center text-center">
-            <div
-              className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${card.iconBgClass} shadow-inner sm:h-12 sm:w-12`}
-            >
-              {iconMap[card.icon]}
+    <section className="space-y-4">
+      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+        {balanceCards.map((card) => (
+          <article
+            key={card.title}
+            className={`rounded-xl bg-gradient-to-br ${card.bgClass} px-3 py-3 text-white shadow-md transition-transform duration-200 hover:-translate-y-0.5 sm:px-5 sm:py-4`}
+          >
+            <div className="flex flex-col items-center text-center">
+              <div
+                className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${card.iconBgClass} shadow-inner sm:h-12 sm:w-12`}
+              >
+                {iconMap[card.icon]}
+              </div>
+
+              <h3 className="text-sm font-semibold sm:text-base">{card.title}</h3>
+
+              <div className="my-3 h-px w-full bg-white/30" />
+
+              <p className="text-lg font-bold leading-none tracking-tight sm:text-[1.5rem]">
+                {card.amount}
+              </p>
             </div>
+          </article>
+        ))}
+      </div>
 
-            <h3 className="text-sm font-semibold sm:text-base">{card.title}</h3>
-
-            <div className="my-3 h-px w-full bg-white/30" />
-
-            <p className="text-lg font-bold leading-none tracking-tight sm:text-[1.5rem]">
-              {card.amount}
+      <article className="overflow-hidden rounded-[26px] bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-700 p-5 text-white shadow-[0_18px_40px_-24px_rgba(37,99,235,0.8)]">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/75">
+              Meta prioritaria
+            </p>
+            <h3 className="mt-2 text-2xl font-bold">Objetivo de ahorro</h3>
+            <p className="mt-2 max-w-xs text-sm text-white/80">
+              El progreso se calcula con los movimientos registrados en la
+              categor&iacute;a de ahorro.
             </p>
           </div>
-        </article>
-      ))}
+
+          <div className="rounded-2xl bg-white/15 px-4 py-3 text-right backdrop-blur-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+              Avance
+            </p>
+            <p className="mt-2 text-2xl font-bold">
+              {Math.round(ahorro.progreso)}%
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-end justify-between gap-3">
+          <p className="text-3xl font-bold tracking-tight">
+            {formatCurrency(ahorro.ahorrado)}
+          </p>
+          <p className="pb-1 text-sm font-semibold text-white/80">
+            de {formatCurrency(ahorro.meta)}
+          </p>
+        </div>
+
+        <div className="mt-4 h-4 overflow-hidden rounded-full bg-white/20">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-lime-300 via-emerald-300 to-cyan-200 transition-all duration-500"
+            style={{ width: `${ahorro.progreso}%` }}
+          />
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-white/12 p-4 backdrop-blur-sm sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+              Restante
+            </p>
+            <p className="mt-1 text-lg font-semibold text-white">
+              {formatCurrency(ahorro.restante)}
+            </p>
+          </div>
+
+          {isEditingGoal ? (
+            <form
+              onSubmit={handleSubmitGoal}
+              className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[16rem]"
+            >
+              <label
+                htmlFor="ahorro-meta"
+                className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70"
+              >
+                Meta de ahorro
+              </label>
+              <div className="flex gap-2">
+                <input
+                  id="ahorro-meta"
+                  type="number"
+                  min="0"
+                  inputMode="numeric"
+                  placeholder="Ej: 15000000"
+                  value={metaInput}
+                  onChange={(event) => setMetaInput(event.target.value)}
+                  className="w-full rounded-xl border border-white/15 bg-white px-4 py-2.5 text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100"
+                />
+                <button
+                  type="submit"
+                  className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-950"
+                >
+                  Guardar
+                </button>
+              </div>
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setMetaInput(ahorro.meta > 0 ? String(ahorro.meta) : "");
+                setIsEditingGoal(true);
+              }}
+              className="rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20"
+            >
+              Editar meta
+            </button>
+          )}
+        </div>
+      </article>
     </section>
   );
 };

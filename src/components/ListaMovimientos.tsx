@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { categoriasLabels } from "../data/formMovimiento";
-import { useFinanzas } from "../context/FinanzasContext";
+import { useFinanzas } from "../context/useFinanzas";
 
 const WalletIcon = () => (
   <svg viewBox="0 0 24 24" className="h-6 w-6 text-green-700" fill="none">
@@ -74,12 +74,16 @@ const iconMap: Record<string, ReactNode> = {
 const categoryIconMap: Record<string, keyof typeof iconMap> = {
   salario: "wallet",
   freelance: "wallet",
+  ahorro: "wallet",
   ventas: "wallet",
   "otros-ingresos": "wallet",
   supermercado: "basket",
-  transporte: "car",
+  moto: "car",
   entretenimiento: "game",
   servicios: "basket",
+  arriendo: "basket",
+  deudas: "basket",
+  Rappi: "wallet",
 };
 
 const formatCurrency = (value: number) =>

@@ -1,30 +1,16 @@
 import {
-  createContext,
-  useContext,
   useEffect,
   useState,
   type ReactNode,
 } from "react";
 import { movimientosIniciales } from "../data/movimientos";
 import type { FormMovimientoValues } from "../types/formMovimiento";
-import type { MovimientoItem, MovimientoSummary } from "../types/movimiento";
-
-type FinanzasContextValue = {
-  movimientos: MovimientoItem[];
-  editingMovimiento: MovimientoItem | null;
-  summary: MovimientoSummary;
-  addMovimiento: (values: FormMovimientoValues) => void;
-  updateMovimiento: (id: number, values: FormMovimientoValues) => void;
-  deleteMovimiento: (id: number) => void;
-  startEditing: (id: number) => void;
-  cancelEditing: () => void;
-};
+import type { AhorroSummary, MovimientoItem, MovimientoSummary } from "../types/movimiento";
+import { FinanzasContext } from "./finanzasStore";
+import type { FinanzasContextValue } from "./useFinanzas";
 
 const STORAGE_KEY = "finanzas-movimientos";
-
-const FinanzasContext = createContext<FinanzasContextValue | undefined>(
-  undefined
-);
+const AHORRO_META_KEY = "finanzas-ahorro-meta";
 
 const normalizeMonto = (monto: string) => Number(monto.trim());
 
@@ -48,6 +34,26 @@ const calculateSummary = (movimientos: MovimientoItem[]): MovimientoSummary => {
     ingresos,
     gastos,
     balance: ingresos - gastos,
+  };
+};
+
+const calculateAhorroSummary = (
+  movimientos: MovimientoItem[],
+  meta: number
+): AhorroSummary => {
+  const ahorrado = movimientos
+    .filter((movimiento) => movimiento.category === "ahorro")
+    .reduce((total, movimiento) => total + movimiento.amount, 0);
+  const sanitizedMeta = Math.max(meta, 0);
+  const restante = Math.max(sanitizedMeta - ahorrado, 0);
+  const progreso =
+    sanitizedMeta > 0 ? Math.min((ahorrado / sanitizedMeta) * 100, 100) : 0;
+
+  return {
+    ahorrado,
+    meta: sanitizedMeta,
+    restante,
+    progreso,
   };
 };
 
@@ -75,6 +81,22 @@ const readStoredMovimientos = (): MovimientoItem[] => {
   }
 };
 
+const readStoredAhorroMeta = (): number => {
+  if (typeof window === "undefined") {
+    return 0;
+  }
+
+  const rawValue = window.localStorage.getItem(AHORRO_META_KEY);
+
+  if (!rawValue) {
+    return 0;
+  }
+
+  const parsedValue = Number(rawValue);
+
+  return Number.isFinite(parsedValue) && parsedValue >= 0 ? parsedValue : 0;
+};
+
 type FinanzasProviderProps = {
   children: ReactNode;
 };
@@ -83,10 +105,15 @@ export const FinanzasProvider = ({ children }: FinanzasProviderProps) => {
   const [movimientos, setMovimientos] =
     useState<MovimientoItem[]>(readStoredMovimientos);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [ahorroMeta, setAhorroMeta] = useState<number>(readStoredAhorroMeta);
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(movimientos));
   }, [movimientos]);
+
+  useEffect(() => {
+    window.localStorage.setItem(AHORRO_META_KEY, String(ahorroMeta));
+  }, [ahorroMeta]);
 
   const addMovimiento = (values: FormMovimientoValues) => {
     const nextMovimiento: MovimientoItem = {
@@ -137,6 +164,10 @@ export const FinanzasProvider = ({ children }: FinanzasProviderProps) => {
     setEditingId(null);
   };
 
+  const updateAhorroMeta = (value: number) => {
+    setAhorroMeta(Math.max(value, 0));
+  };
+
   const editingMovimiento =
     movimientos.find((movimiento) => movimiento.id === editingId) ?? null;
 
@@ -144,24 +175,16 @@ export const FinanzasProvider = ({ children }: FinanzasProviderProps) => {
     movimientos,
     editingMovimiento,
     summary: calculateSummary(movimientos),
+    ahorro: calculateAhorroSummary(movimientos, ahorroMeta),
     addMovimiento,
     updateMovimiento,
     deleteMovimiento,
     startEditing,
     cancelEditing,
+    updateAhorroMeta,
   };
 
   return (
     <FinanzasContext.Provider value={value}>{children}</FinanzasContext.Provider>
   );
-};
-
-export const useFinanzas = () => {
-  const context = useContext(FinanzasContext);
-
-  if (!context) {
-    throw new Error("useFinanzas debe usarse dentro de FinanzasProvider");
-  }
-
-  return context;
 };

@@ -1,6 +1,6 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { categoriasPorTipo } from "../data/formMovimiento";
-import { useFinanzas } from "../context/FinanzasContext";
+import { useFinanzas } from "../context/useFinanzas";
 import type { FormMovimientoValues } from "../types/formMovimiento";
 import type { MovimientoTipo } from "../types/movimiento";
 
@@ -19,31 +19,66 @@ const labelsByType: Record<MovimientoTipo, string> = {
 export const FormMovimiento = () => {
   const { addMovimiento, updateMovimiento, editingMovimiento, cancelEditing } =
     useFinanzas();
+  const isEditing = editingMovimiento !== null;
+  const formKey = editingMovimiento ? `edit-${editingMovimiento.id}` : "new";
+  const formInitialValues = editingMovimiento
+    ? {
+        tipo: editingMovimiento.type,
+        monto: String(editingMovimiento.amount),
+        categoria: editingMovimiento.category,
+        descripcion: editingMovimiento.description,
+      }
+    : initialValues;
+
+  return (
+    <section className="border-t border-slate-200 pt-5">
+      <h3 className="mb-4 text-xl font-bold text-slate-700">
+        {isEditing ? "Editar Movimiento" : "Añadir Movimiento"}
+      </h3>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+        <MovimientoFormFields
+          key={formKey}
+          initialValues={formInitialValues}
+          isEditing={isEditing}
+          onSubmitValues={(values) => {
+            if (editingMovimiento) {
+              updateMovimiento(editingMovimiento.id, values);
+              return;
+            }
+
+            addMovimiento(values);
+          }}
+          onCancel={() => {
+            cancelEditing();
+          }}
+        />
+      </div>
+    </section>
+  );
+};
+
+type MovimientoFormFieldsProps = {
+  initialValues: FormMovimientoValues;
+  isEditing: boolean;
+  onSubmitValues: (values: FormMovimientoValues) => void;
+  onCancel: () => void;
+};
+
+const MovimientoFormFields = ({
+  initialValues,
+  isEditing,
+  onSubmitValues,
+  onCancel,
+}: MovimientoFormFieldsProps) => {
   const [values, setValues] = useState<FormMovimientoValues>(initialValues);
   const [submitted, setSubmitted] = useState(false);
 
-  const isEditing = editingMovimiento !== null;
   const categoryOptions = categoriasPorTipo[values.tipo];
   const isFormValid =
     values.monto.trim() !== "" &&
     Number(values.monto) > 0 &&
     values.categoria !== "";
-
-  useEffect(() => {
-    if (!editingMovimiento) {
-      setValues(initialValues);
-      setSubmitted(false);
-      return;
-    }
-
-    setValues({
-      tipo: editingMovimiento.type,
-      monto: String(editingMovimiento.amount),
-      categoria: editingMovimiento.category,
-      descripcion: editingMovimiento.description,
-    });
-    setSubmitted(false);
-  }, [editingMovimiento]);
 
   const handleTypeChange = (tipo: MovimientoTipo) => {
     setValues((currentValues) => ({
@@ -61,24 +96,16 @@ export const FormMovimiento = () => {
       return;
     }
 
-    if (editingMovimiento) {
-      updateMovimiento(editingMovimiento.id, values);
-    } else {
-      addMovimiento(values);
-    }
-
-    setValues(initialValues);
+    onSubmitValues(values);
     setSubmitted(false);
+
+    if (!isEditing) {
+      setValues(initialValues);
+    }
   };
 
   return (
-    <section className="border-t border-slate-200 pt-5">
-      <h3 className="mb-4 text-xl font-bold text-slate-700">
-        {isEditing ? "Editar Movimiento" : "Añadir Movimiento"}
-      </h3>
-
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-        <form className="space-y-4" onSubmit={handleSubmit}>
+    <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label
               htmlFor="tipo"
@@ -97,6 +124,23 @@ export const FormMovimiento = () => {
               <option value="income">Ingreso</option>
               <option value="expense">Gasto</option>
             </select>
+            <button
+              type="button"
+              onClick={() =>
+                setValues((currentValues) => ({
+                  ...currentValues,
+                  tipo: "income",
+                  categoria: "ahorro",
+                }))
+              }
+              className="w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100"
+            >
+              Registrar aporte a ahorro
+            </button>
+            <p className="text-xs text-slate-500">
+              Si quieres sumar dinero a tu meta, usa este acceso directo o elige
+              `Ingreso` y luego la categor&iacute;a `Ahorro`.
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -194,8 +238,7 @@ export const FormMovimiento = () => {
               <button
                 type="button"
                 onClick={() => {
-                  cancelEditing();
-                  setValues(initialValues);
+                  onCancel();
                   setSubmitted(false);
                 }}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition hover:bg-slate-50"
@@ -205,7 +248,5 @@ export const FormMovimiento = () => {
             ) : null}
           </div>
         </form>
-      </div>
-    </section>
   );
 };
