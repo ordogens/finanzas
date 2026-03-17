@@ -4,12 +4,13 @@ export const categoriasPorTipo: CategoriasPorTipo = {
   income: [
     { value: "salario", label: "Salario" },
     { value: "freelance", label: "Freelance" },
+    { value: "Rappi", label: "Rappi" },
     { value: "ventas", label: "Ventas" },
     { value: "otros-ingresos", label: "Otros ingresos" },
   ],
   expense: [
     { value: "supermercado", label: "Supermercado" },
-    { value: "transporte", label: "Transporte" },
+    { value: "moto", label: "Moto" },
     { value: "entretenimiento", label: "Entretenimiento" },
     { value: "servicios", label: "Servicios" },
   ],
@@ -21,7 +22,7 @@ export const categoriasLabels = {
   ventas: "Ventas",
   "otros-ingresos": "Otros ingresos",
   supermercado: "Supermercado",
-  transporte: "Transporte",
+  moto: "Moto",
   entretenimiento: "Entretenimiento",
   servicios: "Servicios",
 } as const;
