@@ -11,6 +11,8 @@ export const categoriasPorTipo: CategoriasPorTipo = {
   expense: [
     { value: "supermercado", label: "Supermercado" },
     { value: "moto", label: "Moto" },
+    { value: "arriendo", label: "Arriendo" },
+    { value: "deudas", label: "Deudas" },
     { value: "entretenimiento", label: "Entretenimiento" },
     { value: "servicios", label: "Servicios" },
   ],
