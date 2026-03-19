@@ -2,7 +2,6 @@ import type { CategoriasPorTipo } from "../types/formMovimiento";
 
 export const categoriasPorTipo: CategoriasPorTipo = {
   income: [
-    { value: "ahorro", label: "Ahorro" },
     { value: "salario", label: "Salario" },
     { value: "freelance", label: "Freelance" },
     { value: "Rappi", label: "Rappi" },
@@ -17,6 +16,7 @@ export const categoriasPorTipo: CategoriasPorTipo = {
     { value: "entretenimiento", label: "Entretenimiento" },
     { value: "servicios", label: "Servicios" },
   ],
+  saving: [{ value: "ahorro", label: "Ahorro" }],
 };
 
 export const categoriasLabels = {

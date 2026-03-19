@@ -1,4 +1,4 @@
-export type MovimientoTipo = "income" | "expense";
+export type MovimientoTipo = "income" | "expense" | "saving";
 
 export type MovimientoItem = {
   id: number;

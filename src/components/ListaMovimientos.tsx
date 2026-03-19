@@ -100,7 +100,7 @@ export const ListaMovimientos = () => {
     <section className="py-5">
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">
             Actividad
           </p>
           <h3 className="text-xl font-bold text-slate-800">Movimientos Recientes</h3>
@@ -119,13 +119,21 @@ export const ListaMovimientos = () => {
           <div className="max-h-[28rem] overflow-y-auto px-2 py-2 sm:max-h-[32rem]">
             {movimientos.map((movimiento, index) => {
               const amountColor =
-                movimiento.type === "income" ? "text-green-700" : "text-slate-700";
+                movimiento.type === "income"
+                  ? "text-green-700"
+                  : movimiento.type === "saving"
+                    ? "text-cyan-700"
+                    : "text-slate-700";
               const sign = movimiento.type === "income" ? "+" : "-";
               const iconKey = categoryIconMap[movimiento.category] ?? "basket";
               const label =
                 categoriasLabels[movimiento.category as keyof typeof categoriasLabels] ??
                 movimiento.category;
-              const secondaryText = movimiento.description.trim() || label;
+              const secondaryText =
+                movimiento.description.trim() ||
+                (movimiento.type === "saving"
+                  ? "Transferencia a ahorro"
+                  : label);
 
               return (
                 <article
@@ -148,7 +156,7 @@ export const ListaMovimientos = () => {
                         {secondaryText}
                       </p>
                       <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
-                        {label}
+                        {movimiento.type === "saving" ? "Ahorro" : label}
                       </p>
                     </div>
                   </div>

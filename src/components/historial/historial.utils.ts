@@ -66,16 +66,23 @@ const calculateSummary = (movimientos: MovimientoItem[]): MovimientoSummary => {
     .filter((movimiento) => movimiento.type === "expense")
     .reduce((total, movimiento) => total + movimiento.amount, 0);
 
+  const ahorroApartado = movimientos
+    .filter((movimiento) => movimiento.type === "saving")
+    .reduce((total, movimiento) => total + movimiento.amount, 0);
+
   return {
     ingresos,
     gastos,
-    balance: ingresos - gastos,
+    balance: ingresos - gastos - ahorroApartado,
   };
 };
 
 const calculateAhorro = (movimientos: MovimientoItem[]) =>
   movimientos
-    .filter((movimiento) => movimiento.category === "ahorro")
+    .filter(
+      (movimiento) =>
+        movimiento.category === "ahorro" || movimiento.type === "saving"
+    )
     .reduce((total, movimiento) => total + movimiento.amount, 0);
 
 export const getBalanceTone = (balance: number) => {

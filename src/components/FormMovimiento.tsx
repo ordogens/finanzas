@@ -15,6 +15,7 @@ const initialValues: FormMovimientoValues = {
 const labelsByType: Record<MovimientoTipo, string> = {
   income: "Ingreso",
   expense: "Gasto",
+  saving: "Ahorro",
 };
 
 export const FormMovimiento = () => {
@@ -130,7 +131,7 @@ const MovimientoFormFields = ({
     setValues((currentValues) => ({
       ...currentValues,
       tipo,
-      categoria: "",
+      categoria: tipo === "saving" ? "ahorro" : "",
     }));
   };
 
@@ -169,13 +170,14 @@ const MovimientoFormFields = ({
         >
           <option value="income">Ingreso</option>
           <option value="expense">Gasto</option>
+          <option value="saving">Ahorro</option>
         </select>
         <button
           type="button"
           onClick={() =>
             setValues((currentValues) => ({
               ...currentValues,
-              tipo: "income",
+              tipo: "saving",
               categoria: "ahorro",
             }))
           }
@@ -184,8 +186,8 @@ const MovimientoFormFields = ({
           Registrar aporte a ahorro
         </button>
         <p className="text-xs text-slate-500">
-          Si quieres sumar dinero a tu meta, usa este acceso directo o elige
-          `Ingreso` y luego la categor&iacute;a `Ahorro`.
+          Esta opci&oacute;n aparta dinero de tu disponible y lo suma a tu meta
+          de ahorro sin contarlo como ingreso nuevo.
         </p>
       </div>
 

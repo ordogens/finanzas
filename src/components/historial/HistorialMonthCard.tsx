@@ -110,6 +110,8 @@ export const HistorialMonthCard = ({
                 const amountTone =
                   movimiento.type === "income"
                     ? "text-emerald-600"
+                    : movimiento.type === "saving"
+                      ? "text-cyan-700"
                     : "text-slate-700";
                 const sign = movimiento.type === "income" ? "+" : "-";
 
@@ -123,7 +125,7 @@ export const HistorialMonthCard = ({
                         {movimiento.description.trim() || categoryLabel}
                       </p>
                       <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
-                        {categoryLabel}
+                        {movimiento.type === "saving" ? "Ahorro" : categoryLabel}
                       </p>
                     </div>
 
