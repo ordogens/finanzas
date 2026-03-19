@@ -123,7 +123,7 @@ export const ListaMovimientos = () => {
                   ? "text-green-700"
                   : movimiento.type === "saving"
                     ? "text-cyan-700"
-                    : "text-slate-700";
+                    : "text-rose-700";
               const sign = movimiento.type === "income" ? "+" : "-";
               const iconKey = categoryIconMap[movimiento.category] ?? "basket";
               const label =

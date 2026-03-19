@@ -112,7 +112,7 @@ export const HistorialMonthCard = ({
                     ? "text-emerald-600"
                     : movimiento.type === "saving"
                       ? "text-cyan-700"
-                    : "text-slate-700";
+                      : "text-rose-700";
                 const sign = movimiento.type === "income" ? "+" : "-";
 
                 return (
