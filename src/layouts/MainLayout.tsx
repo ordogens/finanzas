@@ -48,11 +48,11 @@ export const MainLayout = ({ children }: Props) => {
   return (
     <div className="flex min-h-screen justify-center bg-gray-100">
       <div className="w-full max-w-md overflow-hidden rounded-xl bg-gray-200 shadow-lg">
-        <header className="flex items-center justify-between border-b border-gray-300 bg-white px-4 py-3">
+        <header className="flex items-center justify-between shadow-md border-gray-300 bg-white px-4 py-3">
           <div className="flex items-center gap-3">
             <div
               onClick={() => handleNavigate("/")}
-              className="flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-black bg-white"
+              className="flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-white"
             >
               <img
                 src={monify}
