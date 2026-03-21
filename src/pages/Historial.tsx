@@ -31,7 +31,6 @@ export const Historial = () => {
           seguir tu balance al d&iacute;a.
         </p>
       </div>
-
       <div className="space-y-3">
         {monthGroups.map((group) => {
           return (

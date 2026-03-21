@@ -1,15 +1,16 @@
 import { createRoot } from "react-dom/client";
-import { FinanzasProvider } from "./context/FinanzasProvider";
 import { BrowserRouter } from "react-router-dom";
-import "./index.css";
 import { App } from "./App.tsx";
+import { AuthProvider } from "./context/AuthContext";
+import { FinanzasProvider } from "./context/FinanzasProvider";
+import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
-    <FinanzasProvider>  
-
-      <App />
-      
-    </FinanzasProvider>
-  </BrowserRouter>,
+    <AuthProvider>
+      <FinanzasProvider>
+        <App />
+      </FinanzasProvider>
+    </AuthProvider>
+  </BrowserRouter>
 );

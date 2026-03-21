@@ -1,6 +1,8 @@
 import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 import type { MonthGroup } from "./historial.utils";
 import {
+  buildExpenseMovementSummary,
   currencyFormatter,
   getBalanceTone,
   getCategoryLabel,
@@ -36,13 +38,24 @@ const EmptyMonthState = () => (
   </div>
 );
 
+const chartBarPalette = [
+  "from-rose-500 to-red-400",
+  "from-orange-500 to-amber-400",
+  "from-sky-500 to-cyan-400",
+  "from-violet-500 to-fuchsia-400",
+  "from-emerald-500 to-teal-400",
+  "from-slate-500 to-slate-400",
+];
+
 export const HistorialMonthCard = ({
   group,
   isCurrentMonth,
   isOpen,
   onToggle,
 }: HistorialMonthCardProps) => {
+  const [isMovementsOpen, setIsMovementsOpen] = useState(false);
   const balanceTone = getBalanceTone(group.summary.balance);
+  const expenseSummary = buildExpenseMovementSummary(group.movimientos);
 
   return (
     <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -101,46 +114,129 @@ export const HistorialMonthCard = ({
             />
           </div>
 
-          <div className="mt-4 space-y-2">
-            {group.movimientos.length === 0 ? (
-              <EmptyMonthState />
-            ) : (
-              group.movimientos.map((movimiento) => {
-                const categoryLabel = getCategoryLabel(movimiento.category);
-                const amountTone =
-                  movimiento.type === "income"
-                    ? "text-emerald-600"
-                    : movimiento.type === "saving"
-                      ? "text-cyan-700"
-                      : "text-rose-700";
-                const sign = movimiento.type === "income" ? "+" : "-";
+          <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Detalle de gastos
+                </p>
+                <h3 className="mt-1 text-base font-semibold text-slate-800">
+                  Cada gasto del mes, uno por uno
+                </h3>
+              </div>
+              <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
+                {currencyFormatter.format(group.summary.gastos)}
+              </span>
+            </div>
 
-                return (
-                  <div
-                    key={movimiento.id}
-                    className="flex flex-col gap-2 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div>
-                      <p className="font-semibold text-slate-800">
-                        {movimiento.description.trim() || categoryLabel}
-                      </p>
-                      <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
-                        {movimiento.type === "saving" ? "Ahorro" : categoryLabel}
+            {expenseSummary.length === 0 ? (
+              <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
+                Este mes no tiene gastos registrados, as&iacute; que todav&iacute;a no
+                hay gr&aacute;fico detallado.
+              </div>
+            ) : (
+              <div className="mt-4 space-y-3">
+                {expenseSummary.map((item, index) => (
+                  <div key={item.id} className="space-y-2">
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-slate-700">
+                          {item.label}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          {item.categoryLabel} · {item.date} ·{" "}
+                          {item.percentage.toFixed(0)}% del gasto mensual
+                        </p>
+                      </div>
+                      <p className="shrink-0 font-semibold text-slate-700">
+                        {currencyFormatter.format(item.amount)}
                       </p>
                     </div>
 
-                    <div className="flex items-center justify-between gap-3 sm:justify-end">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
-                        {movimiento.date}
-                      </span>
-                      <span className={`text-sm font-bold ${amountTone}`}>
-                        {sign} {currencyFormatter.format(movimiento.amount)}
-                      </span>
+                    <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className={`h-full rounded-full bg-gradient-to-r ${
+                          chartBarPalette[index % chartBarPalette.length]
+                        }`}
+                        style={{
+                          width: `${Math.max(item.percentage, 6)}%`,
+                        }}
+                      />
                     </div>
                   </div>
-                );
-              })
+                ))}
+              </div>
             )}
+          </div>
+
+          <div className="mt-4 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+            <button
+              type="button"
+              onClick={() => setIsMovementsOpen((currentState) => !currentState)}
+              className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition hover:bg-slate-50"
+            >
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Historial de movimientos
+                </p>
+                <p className="mt-1 text-sm font-semibold text-slate-700">
+                  {group.movimientos.length} movimiento
+                  {group.movimientos.length === 1 ? "" : "s"}
+                </p>
+              </div>
+
+              <ChevronDown
+                className={`h-5 w-5 shrink-0 text-slate-400 transition-transform ${
+                  isMovementsOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {isMovementsOpen ? (
+              <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-4">
+                <div className="space-y-2">
+                  {group.movimientos.length === 0 ? (
+                    <EmptyMonthState />
+                  ) : (
+                    group.movimientos.map((movimiento) => {
+                      const categoryLabel = getCategoryLabel(movimiento.category);
+                      const amountTone =
+                        movimiento.type === "income"
+                          ? "text-emerald-600"
+                          : movimiento.type === "saving"
+                            ? "text-cyan-700"
+                            : "text-rose-700";
+                      const sign = movimiento.type === "income" ? "+" : "-";
+
+                      return (
+                        <div
+                          key={movimiento.id}
+                          className="flex flex-col gap-2 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <div>
+                            <p className="font-semibold text-slate-800">
+                              {movimiento.description.trim() || categoryLabel}
+                            </p>
+                            <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                              {movimiento.type === "saving" ? "Ahorro" : categoryLabel}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-3 sm:justify-end">
+                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
+                              {movimiento.date}
+                            </span>
+                            <span className={`text-sm font-bold ${amountTone}`}>
+                              {sign} {currencyFormatter.format(movimiento.amount)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}

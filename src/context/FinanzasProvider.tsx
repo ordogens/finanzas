@@ -1,16 +1,20 @@
-import {
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { movimientosIniciales } from "../data/movimientos";
 import type { FormMovimientoValues } from "../types/formMovimiento";
-import type { AhorroSummary, MovimientoItem, MovimientoSummary } from "../types/movimiento";
+import type {
+  AhorroSummary,
+  MovimientoItem,
+  MovimientoSummary,
+} from "../types/movimiento";
 import { FinanzasContext } from "./finanzasStore";
+import { useAuth } from "./useAuth";
 import type { FinanzasContextValue } from "./useFinanzas";
 
-const STORAGE_KEY = "finanzas-movimientos";
-const AHORRO_META_KEY = "finanzas-ahorro-meta";
+const getMovimientosStorageKey = (userId: string | null) =>
+  `finanzas-movimientos-${userId ?? "guest"}`;
+
+const getAhorroMetaStorageKey = (userId: string | null) =>
+  `finanzas-ahorro-meta-${userId ?? "guest"}`;
 
 const normalizeMonto = (monto: string) => Number(monto.trim());
 
@@ -64,12 +68,24 @@ const calculateAhorroSummary = (
   };
 };
 
-const readStoredMovimientos = (): MovimientoItem[] => {
+const normalizeStoredMovimientos = (
+  storedMovimientos: MovimientoItem[]
+): MovimientoItem[] =>
+  storedMovimientos.map((movimiento): MovimientoItem =>
+    movimiento.category === "ahorro" && movimiento.type === "income"
+      ? {
+          ...movimiento,
+          type: "saving",
+        }
+      : movimiento
+  );
+
+const readStoredMovimientos = (userId: string | null): MovimientoItem[] => {
   if (typeof window === "undefined") {
     return movimientosIniciales;
   }
 
-  const rawValue = window.localStorage.getItem(STORAGE_KEY);
+  const rawValue = window.localStorage.getItem(getMovimientosStorageKey(userId));
 
   if (!rawValue) {
     return movimientosIniciales;
@@ -82,25 +98,18 @@ const readStoredMovimientos = (): MovimientoItem[] => {
       return movimientosIniciales;
     }
 
-    return parsedValue.map((movimiento) =>
-      movimiento.category === "ahorro" && movimiento.type === "income"
-        ? {
-            ...movimiento,
-            type: "saving",
-          }
-        : movimiento
-    );
+    return normalizeStoredMovimientos(parsedValue);
   } catch {
     return movimientosIniciales;
   }
 };
 
-const readStoredAhorroMeta = (): number => {
+const readStoredAhorroMeta = (userId: string | null): number => {
   if (typeof window === "undefined") {
     return 0;
   }
 
-  const rawValue = window.localStorage.getItem(AHORRO_META_KEY);
+  const rawValue = window.localStorage.getItem(getAhorroMetaStorageKey(userId));
 
   if (!rawValue) {
     return 0;
@@ -116,18 +125,35 @@ type FinanzasProviderProps = {
 };
 
 export const FinanzasProvider = ({ children }: FinanzasProviderProps) => {
-  const [movimientos, setMovimientos] =
-    useState<MovimientoItem[]>(readStoredMovimientos);
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+  const [movimientos, setMovimientos] = useState<MovimientoItem[]>(() =>
+    readStoredMovimientos(userId)
+  );
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [ahorroMeta, setAhorroMeta] = useState<number>(readStoredAhorroMeta);
+  const [ahorroMeta, setAhorroMeta] = useState<number>(() =>
+    readStoredAhorroMeta(userId)
+  );
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(movimientos));
-  }, [movimientos]);
+    setMovimientos(readStoredMovimientos(userId));
+    setAhorroMeta(readStoredAhorroMeta(userId));
+    setEditingId(null);
+  }, [userId]);
 
   useEffect(() => {
-    window.localStorage.setItem(AHORRO_META_KEY, String(ahorroMeta));
-  }, [ahorroMeta]);
+    window.localStorage.setItem(
+      getMovimientosStorageKey(userId),
+      JSON.stringify(movimientos)
+    );
+  }, [movimientos, userId]);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      getAhorroMetaStorageKey(userId),
+      String(ahorroMeta)
+    );
+  }, [ahorroMeta, userId]);
 
   const addMovimiento = (values: FormMovimientoValues) => {
     const nextMovimiento: MovimientoItem = {

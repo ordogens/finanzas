@@ -9,6 +9,22 @@ export type MonthGroup = {
   ahorro: number;
 };
 
+export type ExpenseCategorySummary = {
+  category: string;
+  label: string;
+  amount: number;
+  percentage: number;
+};
+
+export type ExpenseMovementSummary = {
+  id: number;
+  label: string;
+  categoryLabel: string;
+  amount: number;
+  percentage: number;
+  date: string;
+};
+
 export const currencyFormatter = new Intl.NumberFormat("es-CO", {
   style: "currency",
   currency: "COP",
@@ -99,6 +115,73 @@ export const getBalanceTone = (balance: number) => {
 
 export const getCategoryLabel = (category: string) =>
   categoriasLabels[category as keyof typeof categoriasLabels] ?? category;
+
+export const buildExpenseCategorySummary = (
+  movimientos: MovimientoItem[]
+): ExpenseCategorySummary[] => {
+  const expenseMovimientos = movimientos.filter(
+    (movimiento) => movimiento.type === "expense"
+  );
+  const totalExpenses = expenseMovimientos.reduce(
+    (total, movimiento) => total + movimiento.amount,
+    0
+  );
+
+  if (totalExpenses === 0) {
+    return [];
+  }
+
+  const groupedExpenses = expenseMovimientos.reduce<Record<string, number>>(
+    (accumulator, movimiento) => {
+      accumulator[movimiento.category] =
+        (accumulator[movimiento.category] ?? 0) + movimiento.amount;
+
+      return accumulator;
+    },
+    {}
+  );
+
+  return Object.entries(groupedExpenses)
+    .map(([category, amount]) => ({
+      category,
+      label: getCategoryLabel(category),
+      amount,
+      percentage: (amount / totalExpenses) * 100,
+    }))
+    .sort((first, second) => second.amount - first.amount);
+};
+
+export const buildExpenseMovementSummary = (
+  movimientos: MovimientoItem[]
+): ExpenseMovementSummary[] => {
+  const expenseMovimientos = movimientos.filter(
+    (movimiento) => movimiento.type === "expense"
+  );
+  const totalExpenses = expenseMovimientos.reduce(
+    (total, movimiento) => total + movimiento.amount,
+    0
+  );
+
+  if (totalExpenses === 0) {
+    return [];
+  }
+
+  return expenseMovimientos
+    .map((movimiento) => {
+      const categoryLabel = getCategoryLabel(movimiento.category);
+      const description = movimiento.description.trim();
+
+      return {
+        id: movimiento.id,
+        label: description || categoryLabel,
+        categoryLabel,
+        amount: movimiento.amount,
+        percentage: (movimiento.amount / totalExpenses) * 100,
+        date: movimiento.date,
+      };
+    })
+    .sort((first, second) => second.amount - first.amount);
+};
 
 export const buildMonthGroups = (movimientos: MovimientoItem[]): MonthGroup[] => {
   const groupedMovimientos = movimientos.reduce<Record<string, MovimientoItem[]>>(
