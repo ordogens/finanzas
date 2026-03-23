@@ -111,18 +111,20 @@ export const CardBalance = () => {
 
   const balanceCards = [
     {
-      title: "Ingresos",
-      amount: formatCurrency(summary.ingresos),
-      bgClass: "from-green-400 to-green-500",
-      iconBgClass: "bg-green-300/30",
-      icon: "wallet" as const,
-    },
-    {
       title: "Balance Actual",
       amount: formatCurrency(summary.balance),
       bgClass: "from-blue-400 to-blue-600",
       iconBgClass: "bg-blue-300/30",
       icon: "balance" as const,
+      layoutClass: "col-span-2 min-h-[148px] sm:min-h-[164px]",
+    },
+    {
+      title: "Ingresos",
+      amount: formatCurrency(summary.ingresos),
+      bgClass: "from-green-400 to-green-500",
+      iconBgClass: "bg-green-300/30",
+      icon: "wallet" as const,
+      layoutClass: "min-h-[148px]",
     },
     {
       title: "Gastos",
@@ -130,6 +132,7 @@ export const CardBalance = () => {
       bgClass: "from-red-400 to-red-500",
       iconBgClass: "bg-red-300/30",
       icon: "cart" as const,
+      layoutClass: "min-h-[148px]",
     },
   ];
 
@@ -208,27 +211,53 @@ export const CardBalance = () => {
 
   return (
     <section className="space-y-4">
-      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {balanceCards.map((card) => (
           <article
             key={card.title}
-            className={`rounded-xl bg-gradient-to-br ${card.bgClass} px-3 py-3 text-white shadow-md transition-transform duration-200 hover:-translate-y-0.5 sm:px-5 sm:py-4`}
+            className={
+              card.title === "Balance Actual"
+                ? `overflow-hidden rounded-[22px] border border-blue-200 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 ${card.layoutClass} px-4 py-4 text-white shadow-[0_18px_40px_-28px_rgba(37,99,235,0.7)] transition-transform duration-200 hover:-translate-y-0.5 sm:px-6 sm:py-5`
+                : `rounded-xl bg-gradient-to-br ${card.bgClass} ${card.layoutClass} px-3 py-3 text-white shadow-md transition-transform duration-200 hover:-translate-y-0.5 sm:px-5 sm:py-4`
+            }
           >
-            <div className="flex flex-col items-center text-center">
-              <div
-                className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${card.iconBgClass} shadow-inner sm:h-12 sm:w-12`}
-              >
-                {iconMap[card.icon]}
+            {card.title === "Balance Actual" ? (
+              <div className="flex h-full flex-col justify-center">
+                <div className="flex items-center gap-4 text-blue-100">
+                  <div className="h-px flex-1 bg-white/30" />
+                  <div
+                    className={`flex h-11 w-11 items-center justify-center rounded-2xl ${card.iconBgClass} text-white shadow-inner ring-1 ring-white/15`}
+                  >
+                    {iconMap[card.icon]}
+                  </div>
+                  <div className="h-px flex-1 bg-white/30" />
+                </div>
+
+                <h3 className="mt-3 text-center text-lg font-bold text-white sm:text-[1.45rem]">
+                  Balance Total
+                </h3>
+
+                <p className="mt-3 text-center text-[1.9rem] font-bold leading-none tracking-tight text-white sm:text-[2.4rem]">
+                  {card.amount}
+                </p>
               </div>
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <div
+                  className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${card.iconBgClass} shadow-inner sm:h-12 sm:w-12`}
+                >
+                  {iconMap[card.icon]}
+                </div>
 
-              <h3 className="text-sm font-semibold sm:text-base">{card.title}</h3>
+                <h3 className="text-sm font-semibold sm:text-base">{card.title}</h3>
 
-              <div className="my-3 h-px w-full bg-white/30" />
+                <div className="my-3 h-px w-full bg-white/30" />
 
-              <p className="text-lg font-bold leading-none tracking-tight sm:text-[1.5rem]">
-                {card.amount}
-              </p>
-            </div>
+                <p className="text-lg font-bold leading-none tracking-tight sm:text-[1.5rem]">
+                  {card.amount}
+                </p>
+              </div>
+            )}
           </article>
         ))}
       </div>
