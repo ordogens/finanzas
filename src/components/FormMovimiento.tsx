@@ -1,5 +1,5 @@
 import { Plus, X } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent, type MouseEvent } from "react";
 import { useFinanzas } from "../context/useFinanzas";
 import { categoriasPorTipo } from "../data/formMovimiento";
 import type { FormMovimientoValues } from "../types/formMovimiento";
@@ -36,12 +36,35 @@ export const FormMovimiento = () => {
 
   const isOpen = isExpanded || isEditing;
 
+  useEffect(() => {
+    if (!isOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  const handleClose = () => {
+    if (isEditing) {
+      cancelEditing();
+    }
+
+    setIsExpanded(false);
+  };
+
+  const handleBackdropClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      handleClose();
+    }
+  };
+
   return (
     <>
-      {isOpen ? (
-        <div className="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-[2px]" />
-      ) : null}
-
       <section className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
         {!isOpen ? (
           <button
@@ -56,8 +79,11 @@ export const FormMovimiento = () => {
       </section>
 
       {isOpen ? (
-        <section className="fixed inset-x-0 bottom-0 z-50 px-3 pb-3 sm:left-auto sm:right-6 sm:w-full sm:max-w-[32rem] sm:px-0 sm:pb-6">
-          <div className="overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_30px_80px_-30px_rgba(15,23,42,0.45)]">
+        <section
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-6 backdrop-blur-sm"
+          onClick={handleBackdropClick}
+        >
+          <div className="w-full max-w-md overflow-hidden rounded-[2rem] border border-slate-200 bg-[linear-gradient(160deg,#ffffff_0%,#f8fbff_48%,#eef6ff_100%)] shadow-[0_36px_120px_-40px_rgba(15,23,42,0.55)] ring-1 ring-white/70">
             <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 px-5 py-5 text-white">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -67,21 +93,15 @@ export const FormMovimiento = () => {
                   <h3 className="mt-2 text-2xl font-bold">
                     {isEditing ? "Editar movimiento" : "Agregar movimiento"}
                   </h3>
-                  <p className="mt-2 max-w-md text-sm text-blue-50/90">
-                    Registra ingresos, gastos, ahorro o abonos de deuda sin salir
-                    de la vista principal.
+                  <p className="mt-2 max-w-sm text-sm text-blue-50/90">
+                    Registra ingresos, gastos, ahorro o abonos sin salir de esta
+                    vista.
                   </p>
                 </div>
 
                 <button
                   type="button"
-                  onClick={() => {
-                    if (isEditing) {
-                      cancelEditing();
-                    }
-
-                    setIsExpanded(false);
-                  }}
+                  onClick={handleClose}
                   aria-label="Cerrar formulario"
                   className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-white transition hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-white/30"
                 >
@@ -90,7 +110,7 @@ export const FormMovimiento = () => {
               </div>
             </div>
 
-            <div className="max-h-[75vh] overflow-y-auto bg-slate-50 px-4 py-4 sm:px-5 sm:py-5">
+            <div className="max-h-[70vh] overflow-y-auto bg-slate-50 px-4 py-4 sm:px-5 sm:py-5">
               <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
                 <MovimientoFormFields
                   key={formKey}
@@ -106,8 +126,7 @@ export const FormMovimiento = () => {
                     setIsExpanded(false);
                   }}
                   onCancel={() => {
-                    cancelEditing();
-                    setIsExpanded(false);
+                    handleClose();
                   }}
                 />
               </div>
