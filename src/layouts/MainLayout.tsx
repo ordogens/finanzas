@@ -61,11 +61,11 @@ export const MainLayout = ({ children }: Props) => {
   return (
     <div className="flex min-h-screen justify-center bg-gray-100">
       <div className="w-full max-w-md overflow-hidden rounded-xl bg-gray-200 shadow-lg">
-        <header className="flex items-center justify-between border-gray-300 bg-white px-4 py-3 shadow-md">
+        <header className="flex items-center justify-between border-b border-blue-400/60 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 px-4 py-3 shadow-[0_18px_40px_-28px_rgba(37,99,235,0.7)]">
           <div className="flex items-center gap-3">
             <div
               onClick={() => handleNavigate("/")}
-              className="flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-white"
+              className="flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-white/35 bg-white shadow-sm"
             >
               <img
                 src={monify}
@@ -73,15 +73,14 @@ export const MainLayout = ({ children }: Props) => {
                 className="h-full w-full object-cover object-center"
               />
             </div>
-
-            <h1 className="text-lg font-bold text-gray-800">Monify</h1>
+            <h1 className="text-lg font-bold text-white">Monify</h1>
           </div>
 
           <div className="relative" ref={menuRef}>
             <button
               type="button"
               onClick={() => setIsMenuOpen((current) => !current)}
-              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:border-gray-300 hover:text-gray-700"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-2xl border border-white/20 bg-white/15 text-white shadow-sm backdrop-blur-sm transition hover:bg-white/25"
               aria-label="Abrir menu"
               aria-expanded={isMenuOpen}
             >

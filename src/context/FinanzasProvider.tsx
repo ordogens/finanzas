@@ -174,6 +174,23 @@ type FinanzasProviderProps = {
 export const FinanzasProvider = ({ children }: FinanzasProviderProps) => {
   const { user } = useAuth();
   const userId = user?.id ?? null;
+
+  return (
+    <FinanzasProviderContent key={userId ?? "guest"} userId={userId}>
+      {children}
+    </FinanzasProviderContent>
+  );
+};
+
+type FinanzasProviderContentProps = {
+  children: ReactNode;
+  userId: string | null;
+};
+
+const FinanzasProviderContent = ({
+  children,
+  userId,
+}: FinanzasProviderContentProps) => {
   const [movimientos, setMovimientos] = useState<MovimientoItem[]>(() =>
     readStoredMovimientos(userId)
   );
@@ -184,13 +201,6 @@ export const FinanzasProvider = ({ children }: FinanzasProviderProps) => {
   const [deudaMeta, setDeudaMeta] = useState<number>(() =>
     readStoredDeudaMeta(userId)
   );
-
-  useEffect(() => {
-    setMovimientos(readStoredMovimientos(userId));
-    setAhorroMeta(readStoredAhorroMeta(userId));
-    setDeudaMeta(readStoredDeudaMeta(userId));
-    setEditingId(null);
-  }, [userId]);
 
   useEffect(() => {
     window.localStorage.setItem(

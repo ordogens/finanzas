@@ -1,30 +1,11 @@
-import {
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import type {
-  AuthActionResult,
   AuthUser,
   LoginValues,
   RegisterValues,
   StoredAuthUser,
 } from "../types/auth";
-
-type AuthContextValue = {
-  user: AuthUser | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  authError: string | null;
-  login: (values: LoginValues) => Promise<AuthActionResult>;
-  register: (values: RegisterValues) => Promise<AuthActionResult>;
-  loginWithGoogle: () => Promise<AuthActionResult>;
-  logout: () => void;
-  clearAuthError: () => void;
-};
+import { AuthContext, type AuthContextValue } from "./authStore";
 
 const AUTH_USERS_STORAGE_KEY = "monify-auth-users";
 const AUTH_SESSION_STORAGE_KEY = "monify-auth-session";
@@ -90,21 +71,14 @@ const writeStoredSession = (user: AuthUser | null) => {
   window.localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
 };
 
-export const AuthContext = createContext<AuthContextValue | null>(null);
-
 type AuthProviderProps = {
   children: ReactNode;
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<AuthUser | null>(() => readStoredSession());
+  const [isLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setUser(readStoredSession());
-    setIsLoading(false);
-  }, []);
 
   const clearAuthError = useCallback(() => {
     setAuthError(null);
