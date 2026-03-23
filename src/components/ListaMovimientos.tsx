@@ -75,6 +75,7 @@ const categoryIconMap: Record<string, keyof typeof iconMap> = {
   salario: "wallet",
   freelance: "wallet",
   ahorro: "wallet",
+  "abono-deuda": "wallet",
   ventas: "wallet",
   "otros-ingresos": "wallet",
   supermercado: "basket",
@@ -123,6 +124,8 @@ export const ListaMovimientos = () => {
                   ? "text-green-700"
                   : movimiento.type === "saving"
                     ? "text-cyan-700"
+                    : movimiento.type === "debt"
+                      ? "text-amber-700"
                     : "text-rose-700";
               const sign = movimiento.type === "income" ? "+" : "-";
               const iconKey = categoryIconMap[movimiento.category] ?? "basket";
@@ -133,6 +136,8 @@ export const ListaMovimientos = () => {
                 movimiento.description.trim() ||
                 (movimiento.type === "saving"
                   ? "Transferencia a ahorro"
+                  : movimiento.type === "debt"
+                    ? "Abono a deuda"
                   : label);
 
               return (
@@ -156,7 +161,11 @@ export const ListaMovimientos = () => {
                         {secondaryText}
                       </p>
                       <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
-                        {movimiento.type === "saving" ? "Ahorro" : label}
+                        {movimiento.type === "saving"
+                          ? "Ahorro"
+                          : movimiento.type === "debt"
+                            ? "Deuda"
+                            : label}
                       </p>
                     </div>
                   </div>

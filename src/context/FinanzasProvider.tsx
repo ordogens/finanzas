@@ -3,6 +3,7 @@ import { movimientosIniciales } from "../data/movimientos";
 import type { FormMovimientoValues } from "../types/formMovimiento";
 import type {
   AhorroSummary,
+  DeudaSummary,
   MovimientoItem,
   MovimientoSummary,
 } from "../types/movimiento";
@@ -15,6 +16,9 @@ const getMovimientosStorageKey = (userId: string | null) =>
 
 const getAhorroMetaStorageKey = (userId: string | null) =>
   `finanzas-ahorro-meta-${userId ?? "guest"}`;
+
+const getDeudaMetaStorageKey = (userId: string | null) =>
+  `finanzas-deuda-meta-${userId ?? "guest"}`;
 
 const normalizeMonto = (monto: string) => Number(monto.trim());
 
@@ -38,10 +42,14 @@ const calculateSummary = (movimientos: MovimientoItem[]): MovimientoSummary => {
     .filter((movimiento) => movimiento.type === "saving")
     .reduce((total, movimiento) => total + movimiento.amount, 0);
 
+  const deudaApartada = movimientos
+    .filter((movimiento) => movimiento.type === "debt")
+    .reduce((total, movimiento) => total + movimiento.amount, 0);
+
   return {
     ingresos,
     gastos,
-    balance: ingresos - gastos - ahorroApartado,
+    balance: ingresos - gastos - ahorroApartado - deudaApartada,
   };
 };
 
@@ -62,6 +70,29 @@ const calculateAhorroSummary = (
 
   return {
     ahorrado,
+    meta: sanitizedMeta,
+    restante,
+    progreso,
+  };
+};
+
+const calculateDeudaSummary = (
+  movimientos: MovimientoItem[],
+  meta: number
+): DeudaSummary => {
+  const abonado = movimientos
+    .filter(
+      (movimiento) =>
+        movimiento.category === "abono-deuda" || movimiento.type === "debt"
+    )
+    .reduce((total, movimiento) => total + movimiento.amount, 0);
+  const sanitizedMeta = Math.max(meta, 0);
+  const restante = Math.max(sanitizedMeta - abonado, 0);
+  const progreso =
+    sanitizedMeta > 0 ? Math.min((abonado / sanitizedMeta) * 100, 100) : 0;
+
+  return {
+    abonado,
     meta: sanitizedMeta,
     restante,
     progreso,
@@ -120,6 +151,22 @@ const readStoredAhorroMeta = (userId: string | null): number => {
   return Number.isFinite(parsedValue) && parsedValue >= 0 ? parsedValue : 0;
 };
 
+const readStoredDeudaMeta = (userId: string | null): number => {
+  if (typeof window === "undefined") {
+    return 0;
+  }
+
+  const rawValue = window.localStorage.getItem(getDeudaMetaStorageKey(userId));
+
+  if (!rawValue) {
+    return 0;
+  }
+
+  const parsedValue = Number(rawValue);
+
+  return Number.isFinite(parsedValue) && parsedValue >= 0 ? parsedValue : 0;
+};
+
 type FinanzasProviderProps = {
   children: ReactNode;
 };
@@ -134,10 +181,14 @@ export const FinanzasProvider = ({ children }: FinanzasProviderProps) => {
   const [ahorroMeta, setAhorroMeta] = useState<number>(() =>
     readStoredAhorroMeta(userId)
   );
+  const [deudaMeta, setDeudaMeta] = useState<number>(() =>
+    readStoredDeudaMeta(userId)
+  );
 
   useEffect(() => {
     setMovimientos(readStoredMovimientos(userId));
     setAhorroMeta(readStoredAhorroMeta(userId));
+    setDeudaMeta(readStoredDeudaMeta(userId));
     setEditingId(null);
   }, [userId]);
 
@@ -154,6 +205,13 @@ export const FinanzasProvider = ({ children }: FinanzasProviderProps) => {
       String(ahorroMeta)
     );
   }, [ahorroMeta, userId]);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      getDeudaMetaStorageKey(userId),
+      String(deudaMeta)
+    );
+  }, [deudaMeta, userId]);
 
   const addMovimiento = (values: FormMovimientoValues) => {
     const nextMovimiento: MovimientoItem = {
@@ -208,6 +266,10 @@ export const FinanzasProvider = ({ children }: FinanzasProviderProps) => {
     setAhorroMeta(Math.max(value, 0));
   };
 
+  const updateDeudaMeta = (value: number) => {
+    setDeudaMeta(Math.max(value, 0));
+  };
+
   const editingMovimiento =
     movimientos.find((movimiento) => movimiento.id === editingId) ?? null;
 
@@ -216,12 +278,14 @@ export const FinanzasProvider = ({ children }: FinanzasProviderProps) => {
     editingMovimiento,
     summary: calculateSummary(movimientos),
     ahorro: calculateAhorroSummary(movimientos, ahorroMeta),
+    deuda: calculateDeudaSummary(movimientos, deudaMeta),
     addMovimiento,
     updateMovimiento,
     deleteMovimiento,
     startEditing,
     cancelEditing,
     updateAhorroMeta,
+    updateDeudaMeta,
   };
 
   return (

@@ -16,6 +16,7 @@ const labelsByType: Record<MovimientoTipo, string> = {
   income: "Ingreso",
   expense: "Gasto",
   saving: "Ahorro",
+  debt: "Abono a deuda",
 };
 
 export const FormMovimiento = () => {
@@ -131,7 +132,8 @@ const MovimientoFormFields = ({
     setValues((currentValues) => ({
       ...currentValues,
       tipo,
-      categoria: tipo === "saving" ? "ahorro" : "",
+      categoria:
+        tipo === "saving" ? "ahorro" : tipo === "debt" ? "abono-deuda" : "",
     }));
   };
 
@@ -171,23 +173,39 @@ const MovimientoFormFields = ({
           <option value="income">Ingreso</option>
           <option value="expense">Gasto</option>
           <option value="saving">Ahorro</option>
+          <option value="debt">Abono deuda</option>
         </select>
-        <button
-          type="button"
-          onClick={() =>
-            setValues((currentValues) => ({
-              ...currentValues,
-              tipo: "saving",
-              categoria: "ahorro",
-            }))
-          }
-          className="w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100"
-        >
-          Registrar aporte a ahorro
-        </button>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() =>
+              setValues((currentValues) => ({
+                ...currentValues,
+                tipo: "saving",
+                categoria: "ahorro",
+              }))
+            }
+            className="w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100"
+          >
+            Registrar aporte a ahorro
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              setValues((currentValues) => ({
+                ...currentValues,
+                tipo: "debt",
+                categoria: "abono-deuda",
+              }))
+            }
+            className="w-full rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-left text-sm font-semibold text-amber-700 transition hover:border-amber-300 hover:bg-amber-100"
+          >
+            Registrar abono a deuda
+          </button>
+        </div>
         <p className="text-xs text-slate-500">
-          Esta opci&oacute;n aparta dinero de tu disponible y lo suma a tu meta
-          de ahorro sin contarlo como ingreso nuevo.
+          Ahorro y deuda apartan dinero de tu disponible sin contarlo como un
+          ingreso nuevo.
         </p>
       </div>
 

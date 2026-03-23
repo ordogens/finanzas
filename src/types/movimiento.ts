@@ -1,4 +1,4 @@
-export type MovimientoTipo = "income" | "expense" | "saving";
+export type MovimientoTipo = "income" | "expense" | "saving" | "debt";
 
 export type MovimientoItem = {
   id: number;
@@ -17,6 +17,13 @@ export type MovimientoSummary = {
 
 export type AhorroSummary = {
   ahorrado: number;
+  meta: number;
+  restante: number;
+  progreso: number;
+};
+
+export type DeudaSummary = {
+  abonado: number;
   meta: number;
   restante: number;
   progreso: number;

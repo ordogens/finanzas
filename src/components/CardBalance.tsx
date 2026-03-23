@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { useFinanzas } from "../context/useFinanzas";
 import type { BalanceCardIcon } from "../types/cardBalance";
@@ -76,21 +77,36 @@ const formatCurrency = (value: number) =>
   }).format(value);
 
 export const CardBalance = () => {
-  const { summary, ahorro, updateAhorroMeta } = useFinanzas();
-  const [metaInput, setMetaInput] = useState("");
-  const [isEditingGoal, setIsEditingGoal] = useState(ahorro.meta === 0);
+  const { summary, ahorro, deuda, updateAhorroMeta, updateDeudaMeta } =
+    useFinanzas();
+  const [ahorroMetaInput, setAhorroMetaInput] = useState("");
+  const [deudaMetaInput, setDeudaMetaInput] = useState("");
+  const [isEditingAhorroGoal, setIsEditingAhorroGoal] = useState(ahorro.meta === 0);
+  const [isEditingDeudaGoal, setIsEditingDeudaGoal] = useState(deuda.meta === 0);
+  const [isGoalsOpen, setIsGoalsOpen] = useState(false);
 
-  const handleSubmitGoal = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmitGoal = (
+    event: FormEvent<HTMLFormElement>,
+    type: "ahorro" | "deuda"
+  ) => {
     event.preventDefault();
 
-    const nextGoal = Number(metaInput);
+    const nextGoal = Number(
+      type === "ahorro" ? ahorroMetaInput : deudaMetaInput
+    );
 
     if (!Number.isFinite(nextGoal) || nextGoal < 0) {
       return;
     }
 
-    updateAhorroMeta(nextGoal);
-    setIsEditingGoal(false);
+    if (type === "ahorro") {
+      updateAhorroMeta(nextGoal);
+      setIsEditingAhorroGoal(false);
+      return;
+    }
+
+    updateDeudaMeta(nextGoal);
+    setIsEditingDeudaGoal(false);
   };
 
   const balanceCards = [
@@ -114,6 +130,79 @@ export const CardBalance = () => {
       bgClass: "from-red-400 to-red-500",
       iconBgClass: "bg-red-300/30",
       icon: "cart" as const,
+    },
+  ];
+
+  const goalCards = [
+    {
+      key: "ahorro" as const,
+      badge: "Meta prioritaria",
+      title: "Objetivo de ahorro",
+      description:
+        "El progreso se calcula con los movimientos registrados en la categoria de ahorro.",
+      progressLabel: "Avance",
+      currentAmount: ahorro.ahorrado,
+      goalAmount: ahorro.meta,
+      progress: ahorro.progreso,
+      restante: ahorro.restante,
+      restanteLabel: "Restante",
+      message: `Te faltan ${formatCurrency(
+        ahorro.restante
+      )} para alcanzar tu objetivo de ahorro.`,
+      inputId: "ahorro-meta",
+      inputLabel: "Meta de ahorro",
+      inputPlaceholder: "Ej: 15000000",
+      inputValue: ahorroMetaInput,
+      setInputValue: setAhorroMetaInput,
+      isEditing: isEditingAhorroGoal,
+      onEdit: () => {
+        setAhorroMetaInput(ahorro.meta > 0 ? String(ahorro.meta) : "");
+        setIsEditingAhorroGoal(true);
+      },
+      onSubmit: (event: FormEvent<HTMLFormElement>) =>
+        handleSubmitGoal(event, "ahorro"),
+      cardClass:
+        "bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-700 shadow-[0_18px_40px_-24px_rgba(37,99,235,0.8)]",
+      progressClass: "bg-gradient-to-r from-lime-300 via-emerald-300 to-cyan-200",
+      focusClass: "focus:border-cyan-300 focus:ring-cyan-100",
+      buttonClass:
+        "rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20",
+      panelClass: "bg-white/12",
+    },
+    {
+      key: "deuda" as const,
+      badge: "Plan de libertad",
+      title: "Pago de deudas",
+      description:
+        "Cada abono registrado reduce lo que te falta para salir de esa deuda.",
+      progressLabel: "Pagado",
+      currentAmount: deuda.abonado,
+      goalAmount: deuda.meta,
+      progress: deuda.progreso,
+      restante: deuda.restante,
+      restanteLabel: "Te falta pagar",
+      message: `Te falta pagar ${formatCurrency(
+        deuda.restante
+      )} para que seas libre.`,
+      inputId: "deuda-meta",
+      inputLabel: "Valor total de la deuda",
+      inputPlaceholder: "Ej: 8000000",
+      inputValue: deudaMetaInput,
+      setInputValue: setDeudaMetaInput,
+      isEditing: isEditingDeudaGoal,
+      onEdit: () => {
+        setDeudaMetaInput(deuda.meta > 0 ? String(deuda.meta) : "");
+        setIsEditingDeudaGoal(true);
+      },
+      onSubmit: (event: FormEvent<HTMLFormElement>) =>
+        handleSubmitGoal(event, "deuda"),
+      cardClass:
+        "bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 shadow-[0_18px_40px_-24px_rgba(249,115,22,0.9)]",
+      progressClass: "bg-gradient-to-r from-yellow-200 via-amber-200 to-white",
+      focusClass: "focus:border-amber-300 focus:ring-amber-100",
+      buttonClass:
+        "rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20",
+      panelClass: "bg-white/12",
     },
   ];
 
@@ -144,99 +233,142 @@ export const CardBalance = () => {
         ))}
       </div>
 
-      <article className="overflow-hidden rounded-[26px] bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-700 p-5 text-white shadow-[0_18px_40px_-24px_rgba(37,99,235,0.8)]">
-        <div className="flex items-start justify-between gap-4">
+      <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+        <button
+          type="button"
+          onClick={() => setIsGoalsOpen((currentState) => !currentState)}
+          aria-expanded={isGoalsOpen}
+          className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition hover:bg-slate-50 sm:px-5"
+        >
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/75">
-              Meta prioritaria
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Objetivos
             </p>
-            <h3 className="mt-2 text-2xl font-bold">Objetivo de ahorro</h3>
-            <p className="mt-2 max-w-xs text-sm text-white/80">
-              El progreso se calcula con los movimientos registrados en la
-              categor&iacute;a de ahorro.
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white/15 px-4 py-3 text-right backdrop-blur-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-              Avance
-            </p>
-            <p className="mt-2 text-2xl font-bold">
-              {Math.round(ahorro.progreso)}%
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-6 flex items-end justify-between gap-3">
-          <p className="text-3xl font-bold tracking-tight">
-            {formatCurrency(ahorro.ahorrado)}
-          </p>
-          <p className="pb-1 text-sm font-semibold text-white/80">
-            de {formatCurrency(ahorro.meta)}
-          </p>
-        </div>
-
-        <div className="mt-4 h-4 overflow-hidden rounded-full bg-white/20">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-lime-300 via-emerald-300 to-cyan-200 transition-all duration-500"
-            style={{ width: `${ahorro.progreso}%` }}
-          />
-        </div>
-
-        <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-white/12 p-4 backdrop-blur-sm sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-              Restante
-            </p>
-            <p className="mt-1 text-lg font-semibold text-white">
-              {formatCurrency(ahorro.restante)}
+            <h3 className="mt-1 text-xl font-bold text-slate-800">
+              Ahorro y pago de deuda
+            </h3>
+            <p className="mt-1 text-sm text-slate-500">
+              {formatCurrency(ahorro.restante)} pendientes en ahorro y{" "}
+              {formatCurrency(deuda.restante)} por pagar.
             </p>
           </div>
 
-          {isEditingGoal ? (
-            <form
-              onSubmit={handleSubmitGoal}
-              className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[16rem]"
-            >
-              <label
-                htmlFor="ahorro-meta"
-                className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70"
-              >
-                Meta de ahorro
-              </label>
-              <div className="flex gap-2">
-                <input
-                  id="ahorro-meta"
-                  type="number"
-                  min="0"
-                  inputMode="numeric"
-                  placeholder="Ej: 15000000"
-                  value={metaInput}
-                  onChange={(event) => setMetaInput(event.target.value)}
-                  className="w-full rounded-xl border border-white/15 bg-white px-4 py-2.5 text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100"
-                />
-                <button
-                  type="submit"
-                  className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-950"
+          <div className="flex items-center gap-3">
+            <div className="hidden rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500 sm:block">
+              {isGoalsOpen ? "Ocultar" : "Ver detalles"}
+            </div>
+            <ChevronDown
+              className={`h-5 w-5 shrink-0 text-slate-400 transition-transform ${
+                isGoalsOpen ? "rotate-180" : ""
+              }`}
+            />
+          </div>
+        </button>
+
+        {isGoalsOpen ? (
+          <div className="border-t border-slate-200 bg-slate-50/70 p-4 sm:p-5">
+            <div className="grid gap-4 lg:grid-cols-2">
+              {goalCards.map((card) => (
+                <article
+                  key={card.key}
+                  className={`overflow-hidden rounded-[26px] p-5 text-white ${card.cardClass}`}
                 >
-                  Guardar
-                </button>
-              </div>
-            </form>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                setMetaInput(ahorro.meta > 0 ? String(ahorro.meta) : "");
-                setIsEditingGoal(true);
-              }}
-              className="rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20"
-            >
-              Editar meta
-            </button>
-          )}
-        </div>
-      </article>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/75">
+                        {card.badge}
+                      </p>
+                      <h3 className="mt-2 text-2xl font-bold">{card.title}</h3>
+                      <p className="mt-2 max-w-xs text-sm text-white/80">
+                        {card.description}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-white/15 px-4 py-3 text-right backdrop-blur-sm">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+                        {card.progressLabel}
+                      </p>
+                      <p className="mt-2 text-2xl font-bold">
+                        {Math.round(card.progress)}%
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex items-end justify-between gap-3">
+                    <p className="text-3xl font-bold tracking-tight">
+                      {formatCurrency(card.currentAmount)}
+                    </p>
+                    <p className="pb-1 text-sm font-semibold text-white/80">
+                      de {formatCurrency(card.goalAmount)}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 h-4 overflow-hidden rounded-full bg-white/20">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${card.progressClass}`}
+                      style={{ width: `${card.progress}%` }}
+                    />
+                  </div>
+
+                  <div className={`mt-4 rounded-2xl p-4 backdrop-blur-sm ${card.panelClass}`}>
+                    <div className="flex flex-col gap-2">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+                        {card.restanteLabel}
+                      </p>
+                      <p className="text-lg font-semibold text-white">
+                        {formatCurrency(card.restante)}
+                      </p>
+                      <p className="text-sm text-white/80">{card.message}</p>
+                    </div>
+
+                    {card.isEditing ? (
+                      <form
+                        onSubmit={card.onSubmit}
+                        className="mt-4 flex w-full flex-col gap-2"
+                      >
+                        <label
+                          htmlFor={card.inputId}
+                          className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70"
+                        >
+                          {card.inputLabel}
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            id={card.inputId}
+                            type="number"
+                            min="0"
+                            inputMode="numeric"
+                            placeholder={card.inputPlaceholder}
+                            value={card.inputValue}
+                            onChange={(event) =>
+                              card.setInputValue(event.target.value)
+                            }
+                            className={`w-full rounded-xl border border-white/15 bg-white px-4 py-2.5 text-slate-700 outline-none transition placeholder:text-slate-400 focus:ring-2 ${card.focusClass}`}
+                          />
+                          <button
+                            type="submit"
+                            className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-950"
+                          >
+                            Guardar
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={card.onEdit}
+                        className={`mt-4 ${card.buttonClass}`}
+                      >
+                        Editar meta
+                      </button>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 };

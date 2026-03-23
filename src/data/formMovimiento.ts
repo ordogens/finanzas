@@ -17,6 +17,7 @@ export const categoriasPorTipo: CategoriasPorTipo = {
     { value: "servicios", label: "Servicios" },
   ],
   saving: [{ value: "ahorro", label: "Ahorro" }],
+  debt: [{ value: "abono-deuda", label: "Abono a deuda" }],
 };
 
 export const categoriasLabels = {
@@ -29,6 +30,7 @@ export const categoriasLabels = {
   moto: "Moto",
   arriendo: "Arriendo",
   deudas: "Deudas",
+  "abono-deuda": "Abono a deuda",
   entretenimiento: "Entretenimiento",
   servicios: "Servicios",
   Rappi: "Rappi",

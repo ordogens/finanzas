@@ -7,6 +7,7 @@ export type MonthGroup = {
   movimientos: MovimientoItem[];
   summary: MovimientoSummary;
   ahorro: number;
+  deuda: number;
 };
 
 export type ExpenseCategorySummary = {
@@ -23,6 +24,7 @@ export type ExpenseMovementSummary = {
   amount: number;
   percentage: number;
   date: string;
+  type: "expense" | "debt";
 };
 
 export const currencyFormatter = new Intl.NumberFormat("es-CO", {
@@ -86,10 +88,14 @@ const calculateSummary = (movimientos: MovimientoItem[]): MovimientoSummary => {
     .filter((movimiento) => movimiento.type === "saving")
     .reduce((total, movimiento) => total + movimiento.amount, 0);
 
+  const deudaApartada = movimientos
+    .filter((movimiento) => movimiento.type === "debt")
+    .reduce((total, movimiento) => total + movimiento.amount, 0);
+
   return {
     ingresos,
     gastos,
-    balance: ingresos - gastos - ahorroApartado,
+    balance: ingresos - gastos - ahorroApartado - deudaApartada,
   };
 };
 
@@ -98,6 +104,14 @@ const calculateAhorro = (movimientos: MovimientoItem[]) =>
     .filter(
       (movimiento) =>
         movimiento.category === "ahorro" || movimiento.type === "saving"
+    )
+    .reduce((total, movimiento) => total + movimiento.amount, 0);
+
+const calculateDeuda = (movimientos: MovimientoItem[]) =>
+  movimientos
+    .filter(
+      (movimiento) =>
+        movimiento.category === "abono-deuda" || movimiento.type === "debt"
     )
     .reduce((total, movimiento) => total + movimiento.amount, 0);
 
@@ -120,7 +134,8 @@ export const buildExpenseCategorySummary = (
   movimientos: MovimientoItem[]
 ): ExpenseCategorySummary[] => {
   const expenseMovimientos = movimientos.filter(
-    (movimiento) => movimiento.type === "expense"
+    (movimiento) =>
+      movimiento.type === "expense" || movimiento.type === "debt"
   );
   const totalExpenses = expenseMovimientos.reduce(
     (total, movimiento) => total + movimiento.amount,
@@ -155,7 +170,8 @@ export const buildExpenseMovementSummary = (
   movimientos: MovimientoItem[]
 ): ExpenseMovementSummary[] => {
   const expenseMovimientos = movimientos.filter(
-    (movimiento) => movimiento.type === "expense"
+    (movimiento) =>
+      movimiento.type === "expense" || movimiento.type === "debt"
   );
   const totalExpenses = expenseMovimientos.reduce(
     (total, movimiento) => total + movimiento.amount,
@@ -170,14 +186,17 @@ export const buildExpenseMovementSummary = (
     .map((movimiento) => {
       const categoryLabel = getCategoryLabel(movimiento.category);
       const description = movimiento.description.trim();
+      const movementType: ExpenseMovementSummary["type"] =
+        movimiento.type === "debt" ? "debt" : "expense";
 
       return {
         id: movimiento.id,
         label: description || categoryLabel,
-        categoryLabel,
+        categoryLabel: movementType === "debt" ? "Deuda" : categoryLabel,
         amount: movimiento.amount,
         percentage: (movimiento.amount / totalExpenses) * 100,
         date: movimiento.date,
+        type: movementType,
       };
     })
     .sort((first, second) => second.amount - first.amount);
@@ -214,6 +233,7 @@ export const buildMonthGroups = (movimientos: MovimientoItem[]): MonthGroup[] =>
       movimientos: monthMovimientos,
       summary: calculateSummary(monthMovimientos),
       ahorro: calculateAhorro(monthMovimientos),
+      deuda: calculateDeuda(monthMovimientos),
     };
   });
 };
