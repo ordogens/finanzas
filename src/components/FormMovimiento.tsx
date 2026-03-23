@@ -37,72 +37,85 @@ export const FormMovimiento = () => {
   const isOpen = isExpanded || isEditing;
 
   return (
-    <section className="border-t border-slate-200 pt-5">
-      <div className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">
-              Movimientos
-            </p>
-            <h3 className="mt-1 text-xl font-bold text-slate-700">
-              {isEditing ? "Editar movimiento" : "Agregar movimiento"}
-            </h3>
-          </div>
+    <>
+      {isOpen ? (
+        <div className="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-[2px]" />
+      ) : null}
 
+      <section className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
+        {!isOpen ? (
           <button
             type="button"
-            onClick={() => {
-              if (isEditing) {
-                cancelEditing();
-              }
-
-              setIsExpanded((current) => !current);
-            }}
-            aria-expanded={isOpen}
-            className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold shadow-sm transition focus:outline-none focus:ring-2 focus:ring-blue-200 ${
-              isOpen
-                ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                : "bg-gradient-to-r from-blue-500 via-sky-500 to-cyan-500 text-white hover:from-blue-600 hover:via-sky-600 hover:to-cyan-600"
-            }`}
+            onClick={() => setIsExpanded(true)}
+            aria-label="Agregar movimiento"
+            className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 text-white shadow-[0_18px_35px_-14px_rgba(37,99,235,0.75)] transition hover:-translate-y-1 hover:from-blue-600 hover:via-blue-700 hover:to-cyan-600 focus:outline-none focus:ring-4 focus:ring-blue-200"
           >
-            {isOpen ? (
-              <>
-                <X className="h-4 w-4" />
-                Cerrar
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4" />
-                Nuevo movimiento
-              </>
-            )}
+            <Plus className="h-8 w-8" strokeWidth={2.8} />
           </button>
-        </div>
-
-        {isOpen ? (
-          <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
-            <MovimientoFormFields
-              key={formKey}
-              initialValues={formInitialValues}
-              isEditing={isEditing}
-              onSubmitValues={(values) => {
-                if (editingMovimiento) {
-                  updateMovimiento(editingMovimiento.id, values);
-                  return;
-                }
-
-                addMovimiento(values);
-                setIsExpanded(false);
-              }}
-              onCancel={() => {
-                cancelEditing();
-                setIsExpanded(false);
-              }}
-            />
-          </div>
         ) : null}
-      </div>
-    </section>
+      </section>
+
+      {isOpen ? (
+        <section className="fixed inset-x-0 bottom-0 z-50 px-3 pb-3 sm:left-auto sm:right-6 sm:w-full sm:max-w-[32rem] sm:px-0 sm:pb-6">
+          <div className="overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_30px_80px_-30px_rgba(15,23,42,0.45)]">
+            <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 px-5 py-5 text-white">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-100">
+                    Movimientos
+                  </p>
+                  <h3 className="mt-2 text-2xl font-bold">
+                    {isEditing ? "Editar movimiento" : "Agregar movimiento"}
+                  </h3>
+                  <p className="mt-2 max-w-md text-sm text-blue-50/90">
+                    Registra ingresos, gastos, ahorro o abonos de deuda sin salir
+                    de la vista principal.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isEditing) {
+                      cancelEditing();
+                    }
+
+                    setIsExpanded(false);
+                  }}
+                  aria-label="Cerrar formulario"
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-white transition hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-white/30"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="max-h-[75vh] overflow-y-auto bg-slate-50 px-4 py-4 sm:px-5 sm:py-5">
+              <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+                <MovimientoFormFields
+                  key={formKey}
+                  initialValues={formInitialValues}
+                  isEditing={isEditing}
+                  onSubmitValues={(values) => {
+                    if (editingMovimiento) {
+                      updateMovimiento(editingMovimiento.id, values);
+                      return;
+                    }
+
+                    addMovimiento(values);
+                    setIsExpanded(false);
+                  }}
+                  onCancel={() => {
+                    cancelEditing();
+                    setIsExpanded(false);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
+    </>
   );
 };
 
