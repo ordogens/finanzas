@@ -181,10 +181,10 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] bg-slate-950/55 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] overflow-y-auto bg-slate-950/55 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div className="grid min-h-full place-items-center px-4 py-6">
+      <div className="grid min-h-full place-items-center px-4 py-6 sm:py-8">
         <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] bg-slate-900 shadow-[0_36px_120px_-40px_rgba(0,0,0,0.8)] ring-1 ring-slate-700">
           <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.12)_0%,transparent_70%)]" />
 

@@ -61,9 +61,9 @@ export const MainLayout = ({ children }: Props) => {
   return (
     <div
       data-theme="dark"
-      className="flex min-h-screen justify-center bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.16),_transparent_30%),linear-gradient(180deg,#020617_0%,#0f172a_55%,#020617_100%)] px-3 py-3 sm:px-4 sm:py-5"
+      className="flex min-h-dvh justify-center bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.16),_transparent_30%),linear-gradient(180deg,#020617_0%,#0f172a_55%,#020617_100%)] sm:px-4 sm:py-5"
     >
-      <div className="w-full max-w-md overflow-hidden rounded-[28px] border border-slate-800/90 bg-slate-900/95 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.9)] ring-1 ring-white/5 backdrop-blur-sm">
+      <div className="w-full max-w-md overflow-hidden bg-slate-900/95 sm:rounded-[28px] sm:border sm:border-slate-800/90 sm:shadow-[0_24px_60px_-30px_rgba(15,23,42,0.9)] sm:ring-1 sm:ring-white/5 sm:backdrop-blur-sm">
         <header className="flex items-center justify-between border-b border-blue-400/60 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 px-4 py-3 shadow-[0_18px_40px_-28px_rgba(37,99,235,0.7)]">
           <div className="flex items-center gap-3">
             <div

@@ -22,10 +22,9 @@ export const Home = () => {
         </p>
       </div>
       <CardBalance />
+      <FormMovimiento />
       <hr className="border border-slate-800" />
       <ListaMovimientos />
-      <hr className="border border-slate-800" />
-      <FormMovimiento />
     </div>
   );
 };
