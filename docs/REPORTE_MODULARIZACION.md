@@ -15,6 +15,7 @@ La app ya no depende tanto de archivos monoliticos. En esta etapa se modularizar
 - `src/components/CardBalance.tsx`
 - `src/components/AuthModal.tsx`
 - `src/components/FormMovimiento.tsx`
+- `src/components/ListaMovimientos.tsx`
 - `src/context/FinanzasProvider.tsx`
 - `src/context/AuthContext.tsx`
 - `src/components/historial/HistorialMonthCard.tsx`
@@ -38,6 +39,7 @@ Hoy el proyecto esta en un punto bastante mejor para crecer:
 - Los providers principales ya separan mejor storage, calculos y coordinacion.
 - El modulo de historial ya no depende de un solo archivo utilitario gigante.
 - El layout principal ya esta dividido entre shell, header y menu.
+- La lista principal de movimientos ya separa item, estado vacio, iconos y helpers.
 
 Todavia no esta en arquitectura por feature completa, pero ya tiene una base mucho mas sana para llegar ahi sin rehacer todo.
 
@@ -281,6 +283,7 @@ Eso evita una de las causas mas comunes del desorden:
 La modularizacion que ya hicimos en Monify va exactamente en esa direccion:
 
 - los componentes grandes ya quedaron partidos
+- la lista principal de movimientos ya no depende de un solo archivo largo
 - auth ya separa provider, storage y utilidades
 - finanzas ya separa provider, calculos y persistencia
 - historial ya separa utilidades por responsabilidad
@@ -292,7 +295,7 @@ La siguiente evolucion natural ya no es solo partir archivos grandes.
 
 La siguiente evolucion natural es esta:
 
-1. terminar de modularizar los componentes pendientes
+1. limpiar los componentes medianos que aun pueden separarse mas si hace falta
 2. limpiar nombres y archivos de contexto
 3. mover poco a poco el proyecto a `features/`
 4. crear servicios para backend real
@@ -302,17 +305,7 @@ Asi el proyecto va quedando cada vez mas profesional porque no solo tiene archiv
 
 ## Lo que falta para dejarlo mas escalable y pro
 
-### 1. Modularizar `src/components/ListaMovimientos.tsx`
-
-Sigue siendo el componente grande mas claro que falta por partir.
-
-Objetivo:
-
-- Separar item de movimiento.
-- Separar estado vacio.
-- Separar icon mapping y format helpers si aplica.
-
-### 2. Consolidar nombres y ubicacion de contextos
+### 1. Consolidar nombres y ubicacion de contextos
 
 Todavia hay nombres heredados que pueden confundir:
 
@@ -326,7 +319,7 @@ Objetivo:
 - Evitar archivos de reexport innecesarios.
 - Hacer mas obvio cual archivo define contexto y cual expone hooks o provider.
 
-### 3. Empezar migracion gradual a estructura por feature
+### 2. Empezar migracion gradual a estructura por feature
 
 La modularizacion interna ya avanzo bastante, pero la raiz de `src/` todavia mezcla estructura por tipo tecnico:
 
@@ -342,7 +335,7 @@ Siguiente paso recomendado:
 - Mover gradualmente `auth`, `finanzas` e `historial` a una estructura por feature.
 - Hacerlo por fases, sin big bang refactor.
 
-### 4. Crear una capa compartida para utilidades comunes
+### 3. Crear una capa compartida para utilidades comunes
 
 Ya hay varias piezas que pronto conviene centralizar del todo:
 
@@ -357,7 +350,7 @@ Objetivo:
 - Facilitar pruebas.
 - Preparar mejor la integracion con backend.
 
-### 5. Preparar capa de servicios para backend real
+### 4. Preparar capa de servicios para backend real
 
 Hoy auth y finanzas siguen funcionando con `localStorage`, pero la estructura ya permite dar el siguiente paso.
 
@@ -367,7 +360,7 @@ Recomendacion:
 - Crear servicios/adaptadores para movimientos y metas.
 - Dejar providers como capa de integracion con React, no como lugar de acceso directo a persistencia.
 
-### 6. Agregar pruebas a la logica de dominio mas importante
+### 5. Agregar pruebas a la logica de dominio mas importante
 
 Las funciones puras ya estan mas separadas, asi que ahora tiene mucho mas sentido cubrir:
 
@@ -380,11 +373,10 @@ Las funciones puras ya estan mas separadas, asi que ahora tiene mucho mas sentid
 
 Si seguimos con el mismo criterio de refactor seguro, el mejor orden seria:
 
-1. `ListaMovimientos`
-2. Limpieza y unificacion de archivos de contexto
-3. Primera migracion parcial a `features/`
-4. Extraccion de servicios para backend
-5. Pruebas de dominio
+1. Limpieza y unificacion de archivos de contexto
+2. Primera migracion parcial a `features/`
+3. Extraccion de servicios para backend
+4. Pruebas de dominio
 
 ## Conclusion
 
