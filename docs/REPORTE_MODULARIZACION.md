@@ -1,306 +1,197 @@
-# Reporte de Modularizacion y Estructura
+# Reporte de Modularizacion
 
 Fecha: 2026-03-24
 
 ## Objetivo
 
-Dejar el proyecto en una estructura mas profesional, facil de leer, facil de mantener y con responsabilidades mejor separadas.
+Tener una referencia corta y real del estado actual del proyecto despues del refactor, y dejar visibles solo los cambios que todavia valen la pena para seguir escalando la app con una estructura mas profesional.
 
-Este reporte se basa en la revision del arbol actual de `src/`, el tamano de los archivos, la distribucion de responsabilidades y algunos indicios de deuda tecnica visibles hoy.
+## Estado actual
 
-## Diagnostico rapido
+La app ya no depende tanto de archivos monoliticos. En esta etapa se modularizaron los bloques mas grandes sin romper sus imports publicos ni cambiar el comportamiento visible.
 
-El proyecto esta funcional, pero hoy mezcla varias responsabilidades en archivos grandes:
+### Modularizado
 
-- UI, configuracion visual y logica de negocio dentro del mismo componente.
-- Context providers con logica de almacenamiento, calculos, normalizacion y acciones de dominio al mismo tiempo.
-- Utilidades de negocio dentro de carpetas de `components`.
-- Archivos `.ts` con rol de contexto o servicio fuera de una convencion clara.
-- Archivos heredados o redundantes que ya no aportan valor.
+- `src/components/CardBalance.tsx`
+- `src/components/AuthModal.tsx`
+- `src/components/FormMovimiento.tsx`
+- `src/context/FinanzasProvider.tsx`
+- `src/context/AuthContext.tsx`
+- `src/components/historial/HistorialMonthCard.tsx`
+- `src/components/historial/historial.utils.ts`
+- `src/layouts/MainLayout.tsx`
 
-## Prioridad alta: archivos que mas conviene modularizar
+### Patron aplicado
 
-### 1. `src/components/CardBalance.tsx`
+En casi todos los casos se dejo:
 
-Tamano actual: 407 lineas.
+- Un archivo publico pequeno que reexporta.
+- Una carpeta interna por modulo.
+- Componentes, helpers, hooks, constantes y tipos separados por responsabilidad.
+- Validacion posterior con `npm run lint` y `npx tsc -b`.
 
-Problema:
+## Como quedo el proyecto
 
-- Mezcla iconos SVG, formateo de moneda, configuracion de tarjetas, configuracion de metas, UI del acordeon y formulario de metas.
-- Tiene demasiada logica inline para un componente visual.
+Hoy el proyecto esta en un punto bastante mejor para crecer:
 
-Modularizacion sugerida:
+- Los componentes grandes ya estan partidos en piezas mas legibles.
+- Los providers principales ya separan mejor storage, calculos y coordinacion.
+- El modulo de historial ya no depende de un solo archivo utilitario gigante.
+- El layout principal ya esta dividido entre shell, header y menu.
 
-- Extraer `formatCurrency` a `src/lib/formatters/currency.ts`.
-- Extraer iconos propios a `src/components/balance/icons.tsx`.
-- Extraer configuracion de tarjetas a `src/features/finanzas/config/balanceCards.ts`.
-- Extraer `GoalCard` como componente independiente.
-- Extraer `GoalProgressBar` si quieres mantener una UI reutilizable.
-- Dejar `CardBalance.tsx` solo como componente orquestador.
+Todavia no esta en arquitectura por feature completa, pero ya tiene una base mucho mas sana para llegar ahi sin rehacer todo.
 
-Senal clara:
+## Como separar bien un proyecto
 
-- Este es hoy el componente mas grande del proyecto.
+Una de las ideas mas importantes de la modularizacion es que no todo el codigo cumple el mismo rol.
 
-### 2. `src/components/AuthModal.tsx`
+Cuando todo vive mezclado en un mismo archivo o en una misma carpeta, se vuelve dificil responder preguntas basicas como estas:
 
-Tamano actual: 364 lineas.
+- donde se pinta la interfaz
+- donde estan las reglas del negocio
+- donde se guardan o leen los datos
+- donde se conectan los componentes con React
+- donde estan los tipos y contratos
 
-Problema:
+La separacion correcta ayuda a que cada parte tenga una responsabilidad clara.
 
-- Mezcla modal shell, tabs, inputs, acciones de submit, Google login, alertas de SweetAlert y layout completo.
-- Tiene demasiadas decisiones de UI y comportamiento en un solo archivo.
+### UI
 
-Modularizacion sugerida:
+La UI es la parte visual.
 
-- Extraer `AuthModalShell`.
-- Extraer `AuthTabs`.
-- Extraer `AuthLoginForm`.
-- Extraer `AuthRegisterForm`.
-- Extraer `AuthInputField`.
-- Mover `showSuccessAlert` a `src/lib/alerts/authAlerts.ts` o `src/lib/ui/alerts.ts`.
+Aqui viven cosas como:
 
-Beneficio:
+- componentes
+- secciones
+- modales
+- tarjetas
+- botones
+- acordeones
+- layouts
 
-- Facilita probar y cambiar login y registro sin tocar todo el modal.
+La UI deberia enfocarse en:
 
-### 3. `src/components/FormMovimiento.tsx`
+- mostrar datos
+- recibir interaccion del usuario
+- disparar acciones
 
-Tamano actual: 349 lineas.
+La UI no deberia cargar demasiada logica de negocio ni detalles de persistencia.
 
-Problema:
+Ejemplo en este proyecto:
 
-- Mezcla FAB flotante, modal, formulario, reglas de validacion, acciones de edicion y shortcuts de tipo de movimiento.
-- Tiene dos responsabilidades fuertes: abrir/cerrar UI y administrar formulario.
+- `CardBalance`
+- `AuthModal`
+- `FormMovimiento`
+- `HistorialMonthCard`
+- `MainLayout`
 
-Modularizacion sugerida:
+### Logica de negocio
 
-- Extraer `FloatingAddButton`.
-- Extraer `MovimientoModal`.
-- Extraer `MovimientoForm`.
-- Extraer `MovimientoTypeQuickActions`.
-- Extraer validaciones y defaults a `src/features/movimientos/form/form.constants.ts`.
+La logica de negocio es la que decide como se comporta el sistema.
 
-Beneficio:
+Aqui viven cosas como:
 
-- Permite reutilizar el formulario si luego quieren una pagina dedicada o un drawer.
+- calculos
+- reglas financieras
+- normalizacion de datos
+- agrupaciones por mes
+- reglas de validacion
+- transformaciones del dominio
 
-### 4. `src/context/FinanzasProvider.tsx`
+Ejemplo en este proyecto:
 
-Tamano actual: 304 lineas.
+- calculo de balance
+- progreso de ahorro
+- progreso de deuda
+- agrupacion mensual del historial
+- sanitizacion de auth
 
-Problema:
+Esta parte idealmente debe ser lo mas pura posible, porque asi:
 
-- Mezcla provider React con calculos de dominio, claves de localStorage, lecturas/escrituras, normalizacion de datos y acciones CRUD.
-- Hoy hace trabajo de provider, store, selectors y repository a la vez.
+- se entiende mejor
+- se prueba mejor
+- se reutiliza mejor
 
-Modularizacion sugerida:
+### Persistencia o storage
 
-- Mover storage keys a `src/features/finanzas/storage/keys.ts`.
-- Mover acceso a localStorage a `src/features/finanzas/storage/finanzasStorage.ts`.
-- Mover calculos a `src/features/finanzas/domain/finanzasCalculations.ts`.
-- Mover normalizacion de movimientos a `src/features/finanzas/domain/normalizers.ts`.
-- Dejar el provider solo coordinando estado y exponiendo acciones.
+La persistencia es la capa que lee o guarda informacion.
 
-Recomendacion pro:
+Hoy en Monify eso se hace con:
 
-- Si el proyecto sigue creciendo, pasar de `useState` a `useReducer` para centralizar eventos del dominio.
+- `localStorage`
 
-### 5. `src/context/AuthContext.tsx`
+Manana podria hacerse con:
 
-Tamano actual: 253 lineas.
+- una API
+- una base de datos
+- un servicio externo
 
-Problema:
+La idea sana es que el resto del proyecto no dependa demasiado de si los datos vienen de `localStorage` o de backend.
 
-- Mezcla contexto, almacenamiento, sanitizacion, session management, registro, login y fake Google auth.
-- Es dificil de leer porque todo esta en el mismo nivel.
+Por eso conviene separar esta capa.
 
-Modularizacion sugerida:
+Ejemplo en este proyecto:
 
-- Mover storage a `src/features/auth/storage/authStorage.ts`.
-- Mover sanitizacion a `src/features/auth/domain/authSanitizers.ts`.
-- Mover acciones a `src/features/auth/services/authService.ts`.
-- Dejar `AuthContext.tsx` como capa de integracion con React.
+- `src/context/auth/auth.storage.ts`
+- `src/context/finanzas/storage.ts`
 
-Beneficio:
+### Capa de integracion con React
 
-- Hace mas facil reemplazar localStorage por backend mas adelante.
+Esta capa conecta:
 
-### 6. `src/components/historial/HistorialMonthCard.tsx`
+- UI
+- logica
+- storage
 
-Tamano actual: 286 lineas.
+Aqui viven normalmente:
 
-Problema:
+- providers
+- hooks de contexto
+- componentes orquestadores
 
-- Mezcla tarjeta principal, resumen del mes, detalle de salidas, lista de movimientos y estados vacios.
+Su trabajo no deberia ser hacer todo, sino coordinar.
 
-Modularizacion sugerida:
+Ejemplo en este proyecto:
 
-- Extraer `HistorialMonthHeader`.
-- Extraer `HistorialExpenseBreakdown`.
-- Extraer `HistorialSummaryPanel`.
-- Extraer `HistorialMovementsPanel`.
-- Extraer `EmptyMonthState`.
+- `AuthProvider`
+- `FinanzasProvider`
+- componentes orquestadores como `CardBalance/CardBalance.tsx`
 
-Beneficio:
+### Tipos y contratos
 
-- La pantalla de historial queda mas facil de extender.
+Los tipos ayudan a dejar claro que forma tiene la informacion y que espera cada modulo.
 
-### 7. `src/components/historial/historial.utils.ts`
+Ejemplo:
 
-Tamano actual: 239 lineas.
+- `AuthUser`
+- `MovimientoItem`
+- `MovimientoSummary`
+- `RegisterValues`
 
-Problema:
+Esto ayuda mucho a diferenciar las partes del proyecto porque obliga a explicitar:
 
-- Tiene logica de dominio de historial dentro de una carpeta de componentes.
-- No es un componente; es logica de negocio y transformacion.
+- que entra
+- que sale
+- que representa cada cosa
 
-Reubicacion sugerida:
+## Por que esta separacion mejora el proyecto
 
-- Mover a `src/features/historial/domain/historial.utils.ts` o mejor:
-- `src/features/historial/domain/buildMonthGroups.ts`
-- `src/features/historial/domain/historyFormatters.ts`
-- `src/features/historial/domain/historySelectors.ts`
+Cuando separas UI, negocio, storage e integracion:
 
-Beneficio:
+- leer el codigo es mas facil
+- cambiar una parte rompe menos las demas
+- conectar backend es mas ordenado
+- escribir pruebas es mucho mas simple
+- los componentes se vuelven mas pequenos
+- se reduce el acoplamiento
 
-- Separa claramente UI de dominio.
+En otras palabras: cada parte del proyecto empieza a tener identidad propia.
 
-### 8. `src/components/ListaMovimientos.tsx`
+## Arquitectura por tipo tecnico vs arquitectura por feature
 
-Tamano actual: 202 lineas.
+Hoy el proyecto todavia mezcla bastante una estructura por tipo tecnico.
 
-Problema:
-
-- Mezcla icon mapping, formateo, render de item, estados vacios y acciones.
-
-Modularizacion sugerida:
-
-- Extraer `MovimientoListItem`.
-- Extraer `MovimientoEmptyState`.
-- Extraer `movementIconMap.tsx`.
-- Reutilizar `formatCurrency` desde una utilidad comun.
-
-### 9. `src/layouts/MainLayout.tsx`
-
-Tamano actual: 173 lineas.
-
-Problema:
-
-- Mezcla layout, header, menu, auth actions y user menu card.
-
-Modularizacion sugerida:
-
-- Extraer `AppHeader`.
-- Extraer `HeaderMenu`.
-- Extraer `HeaderAuthSection`.
-
-## Archivos `.ts` fuera de `data` o `types` que deberian reorganizarse
-
-Aqui no todo esta mal por estar fuera de `data` o `types`. Muchos `.ts` deben vivir en `context`, `lib`, `features`, `services` o `hooks`. El problema no es el formato `.ts`; el problema es la ubicacion y el nombre.
-
-### Archivos a revisar
-
-#### `src/context/authStore.ts`
-
-Situacion actual:
-
-- En realidad define `AuthContext`, no un store completo.
-
-Recomendacion:
-
-- Renombrar a `src/context/auth-context.ts` si mantienes estructura simple.
-- O mover a `src/features/auth/context/AuthContext.ts`.
-
-#### `src/context/finanzasStore.ts`
-
-Situacion actual:
-
-- Tambien define el contexto, no un store en sentido estricto.
-
-Recomendacion:
-
-- Renombrar a `src/context/finanzas-context.ts`.
-- O mover a `src/features/finanzas/context/FinanzasContext.ts`.
-
-#### `src/context/finanzasContext.ts`
-
-Situacion actual:
-
-- Solo reexporta `FinanzasContext`.
-- Aporta muy poco y aumenta confusion porque convive con `finanzasStore.ts`.
-
-Recomendacion:
-
-- Eliminarlo o consolidarlo con un solo archivo de contexto.
-
-#### `src/components/historial/historial.utils.ts`
-
-Situacion actual:
-
-- Es logica de dominio viviendo dentro de `components`.
-
-Recomendacion:
-
-- Moverlo a `features/historial/domain`.
-
-## Archivos redundantes, obsoletos o sospechosos
-
-### `src/data/cardBalance.ts`
-
-Situacion actual:
-
-- Existe un arreglo `balanceCards`, pero `CardBalance.tsx` ya define su propia configuracion interna.
-- Hoy parece archivo muerto.
-
-Recomendacion:
-
-- O lo eliminas.
-- O lo conviertes en la unica fuente de configuracion y lo importas desde `CardBalance.tsx`.
-
-### `src/App.css`
-
-Situacion actual:
-
-- Esta vacio y `App.tsx` lo sigue importando.
-
-Recomendacion:
-
-- Eliminar el import.
-- Eliminar el archivo si no se va a usar.
-
-### `src/assets/react.svg` y `src/assets/vite.svg`
-
-Situacion actual:
-
-- Parecen restos del scaffold inicial.
-- No encontre uso actual.
-
-Recomendacion:
-
-- Eliminar si confirmas que no se necesitan.
-
-### `src/data/movimientos.ts`
-
-Situacion actual:
-
-- Incluye categoria `transporte`, pero esa categoria no aparece en `categoriasPorTipo` ni en `categoriasLabels`.
-
-Riesgo:
-
-- Inconsistencia de dominio.
-- La UI puede mostrar etiquetas crudas o comportamientos raros.
-
-Recomendacion:
-
-- O agregas `transporte` al catalogo oficial.
-- O corriges el mock para usar una categoria valida.
-
-## Problemas de arquitectura que hoy conviene corregir
-
-### 1. Mezcla de estructura por tipo tecnico y por feature
-
-Hoy el proyecto mezcla:
+Eso significa carpetas como:
 
 - `components`
 - `context`
@@ -308,26 +199,33 @@ Hoy el proyecto mezcla:
 - `types`
 - `pages`
 
-Eso funciona en proyectos pequenos, pero cuando crece termina repartiendo la logica de una misma feature en muchas carpetas.
+Ese modelo funciona bien al inicio, pero con el tiempo tiene un problema:
 
-Recomendacion:
+la logica de una sola funcionalidad termina repartida en muchas carpetas.
 
-- Migrar gradualmente a estructura por feature.
+Por ejemplo, la feature de finanzas puede quedar partida entre:
+
+- un componente en `components`
+- un provider en `context`
+- datos en `data`
+- tipos en `types`
+
+Eso hace que para entender una sola feature tengas que saltar por muchas zonas del proyecto.
+
+### Que es arquitectura por feature
+
+La arquitectura por feature agrupa el codigo por funcionalidad del negocio.
 
 Ejemplo:
 
 ```text
 src/
-  app/
-    App.tsx
-    main.tsx
-    providers/
   features/
     auth/
       components/
       context/
       domain/
-      services/
+      storage/
       types/
     finanzas/
       components/
@@ -339,154 +237,157 @@ src/
       components/
       domain/
       types/
-  shared/
-    components/
-    lib/
-    hooks/
-    types/
-  assets/
 ```
 
-### 2. Utilidades duplicadas o dispersas
+Aqui la idea es simple:
 
-Hoy hay formateo de moneda y logica de resumen repetida o muy cercana entre componentes/provider/utils.
+- todo lo relacionado con auth vive junto
+- todo lo relacionado con finanzas vive junto
+- todo lo relacionado con historial vive junto
+
+### Por que la arquitectura por feature es mejor
+
+Porque hace mas facil:
+
+- entender una funcionalidad completa
+- cambiar una feature sin tocar media app
+- mover responsabilidades con menos friccion
+- escalar el proyecto cuando aparecen nuevos modulos
+- trabajar en equipo sin pisarse tanto
+
+Tambien ayuda a responder preguntas concretas muy rapido:
+
+- donde esta todo lo de auth
+- donde esta todo lo de finanzas
+- donde vive la logica del historial
+
+## Como todo esto ayuda a diferenciar mejor las partes del proyecto
+
+Cuando el proyecto esta mejor separado, se empiezan a ver capas mas claras:
+
+- la UI representa
+- la logica decide
+- el storage persiste
+- los providers conectan
+- los tipos describen
+
+Eso evita una de las causas mas comunes del desorden:
+
+- componentes que hacen de todo
+- providers que parecen servicios
+- utilidades metidas en carpetas visuales
+- reglas del negocio mezcladas con JSX
+
+La modularizacion que ya hicimos en Monify va exactamente en esa direccion:
+
+- los componentes grandes ya quedaron partidos
+- auth ya separa provider, storage y utilidades
+- finanzas ya separa provider, calculos y persistencia
+- historial ya separa utilidades por responsabilidad
+- layout ya separa shell, header y menu
+
+## Hacia donde deberia seguir el proyecto
+
+La siguiente evolucion natural ya no es solo partir archivos grandes.
+
+La siguiente evolucion natural es esta:
+
+1. terminar de modularizar los componentes pendientes
+2. limpiar nombres y archivos de contexto
+3. mover poco a poco el proyecto a `features/`
+4. crear servicios para backend real
+5. probar la logica de dominio por separado
+
+Asi el proyecto va quedando cada vez mas profesional porque no solo tiene archivos pequenos, sino una estructura donde cada parte se entiende por su rol.
+
+## Lo que falta para dejarlo mas escalable y pro
+
+### 1. Modularizar `src/components/ListaMovimientos.tsx`
+
+Sigue siendo el componente grande mas claro que falta por partir.
+
+Objetivo:
+
+- Separar item de movimiento.
+- Separar estado vacio.
+- Separar icon mapping y format helpers si aplica.
+
+### 2. Consolidar nombres y ubicacion de contextos
+
+Todavia hay nombres heredados que pueden confundir:
+
+- `src/context/authStore.ts`
+- `src/context/finanzasStore.ts`
+- `src/context/finanzasContext.ts`
+
+Objetivo:
+
+- Dejar una convencion unica y clara.
+- Evitar archivos de reexport innecesarios.
+- Hacer mas obvio cual archivo define contexto y cual expone hooks o provider.
+
+### 3. Empezar migracion gradual a estructura por feature
+
+La modularizacion interna ya avanzo bastante, pero la raiz de `src/` todavia mezcla estructura por tipo tecnico:
+
+- `components`
+- `context`
+- `data`
+- `layouts`
+- `pages`
+- `types`
+
+Siguiente paso recomendado:
+
+- Mover gradualmente `auth`, `finanzas` e `historial` a una estructura por feature.
+- Hacerlo por fases, sin big bang refactor.
+
+### 4. Crear una capa compartida para utilidades comunes
+
+Ya hay varias piezas que pronto conviene centralizar del todo:
+
+- currency formatter
+- helpers de fecha
+- constantes de storage
+- utilidades de dominio compartidas
+
+Objetivo:
+
+- Evitar duplicacion silenciosa.
+- Facilitar pruebas.
+- Preparar mejor la integracion con backend.
+
+### 5. Preparar capa de servicios para backend real
+
+Hoy auth y finanzas siguen funcionando con `localStorage`, pero la estructura ya permite dar el siguiente paso.
 
 Recomendacion:
 
-- Centralizar:
-- `currency.ts`
-- `date.ts`
-- `movementSelectors.ts`
-- `storageKeys.ts`
+- Crear servicios/adaptadores para auth.
+- Crear servicios/adaptadores para movimientos y metas.
+- Dejar providers como capa de integracion con React, no como lugar de acceso directo a persistencia.
 
-### 3. Contexts demasiado pesados
+### 6. Agregar pruebas a la logica de dominio mas importante
 
-Cuando un provider tiene mucha logica, el archivo deja de ser una capa de integracion y se vuelve dificil de mantener.
+Las funciones puras ya estan mas separadas, asi que ahora tiene mucho mas sentido cubrir:
 
-Recomendacion:
+- calculos financieros
+- construccion de grupos mensuales
+- sanitizacion y flujo de auth
+- normalizacion de datos persistidos
 
-- Provider corto.
-- Logica de negocio en funciones puras.
-- Storage en adaptadores separados.
+## Orden recomendado desde este punto
 
-## Propuesta concreta de estructura mas profesional
+Si seguimos con el mismo criterio de refactor seguro, el mejor orden seria:
 
-Opcion recomendada sin sobrerrefactor:
+1. `ListaMovimientos`
+2. Limpieza y unificacion de archivos de contexto
+3. Primera migracion parcial a `features/`
+4. Extraccion de servicios para backend
+5. Pruebas de dominio
 
-```text
-src/
-  app/
-    App.tsx
-    main.tsx
-  assets/
-  features/
-    auth/
-      components/
-        AuthModal.tsx
-        AuthLoginForm.tsx
-        AuthRegisterForm.tsx
-      context/
-        AuthContext.tsx
-        useAuth.ts
-      services/
-        authStorage.ts
-        authService.ts
-      types/
-        auth.types.ts
-    finanzas/
-      components/
-        CardBalance.tsx
-        GoalCard.tsx
-        FormMovimiento.tsx
-        ListaMovimientos.tsx
-        MovimientoListItem.tsx
-      context/
-        FinanzasContext.tsx
-        useFinanzas.ts
-      domain/
-        finanzasCalculations.ts
-        movimientoSelectors.ts
-        movimientoNormalizers.ts
-      storage/
-        finanzasStorage.ts
-        finanzasKeys.ts
-      config/
-        movementCategories.ts
-      types/
-        movimiento.types.ts
-        formMovimiento.types.ts
-        cardBalance.types.ts
-    historial/
-      components/
-        HistorialMonthCard.tsx
-        HistorialSummaryPanel.tsx
-        HistorialExpenseBreakdown.tsx
-        HistorialMovementsPanel.tsx
-      domain/
-        historial.utils.ts
-  layouts/
-    MainLayout.tsx
-  pages/
-    Home.tsx
-    Historial.tsx
-  shared/
-    lib/
-      currency.ts
-      date.ts
-```
+## Conclusion
 
-## Plan sugerido por fases
+El proyecto ya salio de la zona mas riesgosa de archivos gigantes. La base actual esta bastante mejor para escalar, mantener y conectar backend sin que cada cambio toque demasiadas cosas al tiempo.
 
-### Fase 1. Limpieza segura
-
-- Eliminar `App.css` si no se va a usar.
-- Eliminar `src/data/cardBalance.ts` si queda muerto.
-- Eliminar assets del scaffold que no se usen.
-- Corregir categoria `transporte` en datos mock.
-- Consolidar `finanzasStore.ts` y `finanzasContext.ts` en un solo archivo.
-
-### Fase 2. Extraer utilidades puras
-
-- Extraer formatters de moneda.
-- Extraer helpers de fecha.
-- Extraer calculos de resumen financiero.
-- Extraer acceso a localStorage.
-
-### Fase 3. Dividir componentes grandes
-
-- `CardBalance.tsx`
-- `AuthModal.tsx`
-- `FormMovimiento.tsx`
-- `HistorialMonthCard.tsx`
-- `ListaMovimientos.tsx`
-- `MainLayout.tsx`
-
-### Fase 4. Reorganizar por feature
-
-- Mover auth a `features/auth`.
-- Mover finanzas a `features/finanzas`.
-- Mover historial a `features/historial`.
-
-## Prioridad recomendada
-
-Si solo se van a hacer 5 cambios para elevar mucho la calidad del proyecto, yo haria estos en este orden:
-
-1. Partir `FinanzasProvider.tsx` en provider + storage + calculos.
-2. Partir `AuthContext.tsx` en context + auth service + auth storage.
-3. Partir `CardBalance.tsx` y `FormMovimiento.tsx`.
-4. Mover `historial.utils.ts` fuera de `components`.
-5. Limpiar archivos muertos y unificar nombres de contexto.
-
-## Conclusiones
-
-El proyecto no esta mal encaminado, pero ya alcanzo el punto en el que necesita una estructura mas clara para seguir creciendo sin volverse dificil de mantener.
-
-La mayor oportunidad no esta en crear mas carpetas por crear carpetas, sino en separar:
-
-- UI
-- logica de negocio
-- storage
-- configuracion
-- tipos
-
-Si haces esa separacion, la lectura del codigo mejora mucho, los componentes bajan de tamano y el proyecto queda listo para evolucionar hacia backend real, testing y escalamiento de features.
+Lo que sigue ya no es tanto "romper monolitos", sino ordenar la arquitectura alrededor de features, servicios y utilidades compartidas para que el codigo se vea cada vez mas profesional y facil de evolucionar.

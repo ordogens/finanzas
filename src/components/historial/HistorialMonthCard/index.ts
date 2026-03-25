@@ -1,0 +1,1 @@
+export { HistorialMonthCard } from "./HistorialMonthCard";
