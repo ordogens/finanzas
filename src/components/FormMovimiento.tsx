@@ -1,5 +1,6 @@
 import { Plus, X } from "lucide-react";
 import { useEffect, useState, type FormEvent, type MouseEvent } from "react";
+import { createPortal } from "react-dom";
 import { useFinanzas } from "../context/useFinanzas";
 import { categoriasPorTipo } from "../data/formMovimiento";
 import type { FormMovimientoValues } from "../types/formMovimiento";
@@ -38,14 +39,22 @@ export const FormMovimiento = () => {
 
   useEffect(() => {
     if (!isOpen) {
-      document.body.style.overflow = "";
       return;
     }
 
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+    const previousOverflow = document.body.style.overflow;
+    const previousPaddingRight = document.body.style.paddingRight;
+
     document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
 
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
+      document.body.style.paddingRight = previousPaddingRight;
     };
   }, [isOpen]);
 
@@ -78,62 +87,67 @@ export const FormMovimiento = () => {
         ) : null}
       </section>
 
-      {isOpen ? (
-        <section
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-6 backdrop-blur-sm"
-          onClick={handleBackdropClick}
-        >
-          <div className="w-full max-w-md overflow-hidden rounded-[2rem] border border-slate-700 bg-slate-900 shadow-[0_36px_120px_-40px_rgba(0,0,0,0.7)]">
-            <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 px-5 py-5 text-white">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-100">
-                    Movimientos
-                  </p>
-                  <h3 className="mt-2 text-2xl font-bold">
-                    {isEditing ? "Editar movimiento" : "Agregar movimiento"}
-                  </h3>
-                  <p className="mt-2 max-w-sm text-sm text-blue-50/90">
-                    Registra ingresos, gastos, ahorro o abonos sin salir de esta
-                    vista.
-                  </p>
+      {isOpen
+        ? createPortal(
+            <section
+              className="fixed inset-0 z-[100] bg-slate-950/45 backdrop-blur-sm"
+              onClick={handleBackdropClick}
+            >
+              <div className="grid min-h-full place-items-center px-4 py-6">
+                <div className="w-full max-w-md overflow-hidden rounded-[2rem] border border-slate-700 bg-slate-900 shadow-[0_36px_120px_-40px_rgba(0,0,0,0.7)]">
+                  <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 px-5 py-5 text-white">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-100">
+                          Movimientos
+                        </p>
+                        <h3 className="mt-2 text-2xl font-bold">
+                          {isEditing ? "Editar movimiento" : "Agregar movimiento"}
+                        </h3>
+                        <p className="mt-2 max-w-sm text-sm text-blue-50/90">
+                          Registra ingresos, gastos, ahorro o abonos sin salir de
+                          esta vista.
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleClose}
+                        aria-label="Cerrar formulario"
+                        className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-white transition hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-white/30"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="max-h-[70vh] overflow-y-auto bg-slate-950 px-4 py-4 sm:px-5 sm:py-5">
+                    <div className="rounded-[24px] border border-slate-700 bg-slate-900 p-4 sm:p-5">
+                      <MovimientoFormFields
+                        key={formKey}
+                        initialValues={formInitialValues}
+                        isEditing={isEditing}
+                        onSubmitValues={(values) => {
+                          if (editingMovimiento) {
+                            updateMovimiento(editingMovimiento.id, values);
+                            return;
+                          }
+
+                          addMovimiento(values);
+                          setIsExpanded(false);
+                        }}
+                        onCancel={() => {
+                          handleClose();
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  aria-label="Cerrar formulario"
-                  className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-white transition hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-white/30"
-                >
-                  <X className="h-5 w-5" />
-                </button>
               </div>
-            </div>
-
-            <div className="max-h-[70vh] overflow-y-auto bg-slate-950 px-4 py-4 sm:px-5 sm:py-5">
-              <div className="rounded-[24px] border border-slate-700 bg-slate-900 p-4 sm:p-5">
-                <MovimientoFormFields
-                  key={formKey}
-                  initialValues={formInitialValues}
-                  isEditing={isEditing}
-                  onSubmitValues={(values) => {
-                    if (editingMovimiento) {
-                      updateMovimiento(editingMovimiento.id, values);
-                      return;
-                    }
-
-                    addMovimiento(values);
-                    setIsExpanded(false);
-                  }}
-                  onCancel={() => {
-                    handleClose();
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-      ) : null}
+            </section>,
+            document.body
+          )
+        : null}
     </>
   );
 };
