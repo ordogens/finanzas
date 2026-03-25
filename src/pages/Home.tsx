@@ -11,20 +11,20 @@ export const Home = () => {
   const displayName = user?.name ?? "invitado";
 
   return (
-    <div className="space-y-5">
-      <div className="flex h-20 w-full flex-col justify-center rounded-2xl bg-white px-5 shadow-sm">
-        <h2 className="text-xl font-bold capitalize">Hola {displayName}</h2>
-        <p>
+    <div className="space-y-5 text-slate-100">
+      <div className="flex min-h-20 w-full flex-col justify-center rounded-[24px] border border-slate-800 bg-slate-950/80 px-5 py-4 shadow-[0_18px_36px_-26px_rgba(15,23,42,0.9)] ring-1 ring-white/5">
+        <h2 className="text-xl font-bold capitalize text-white">Hola {displayName}</h2>
+        <p className="text-slate-300">
           Resumen del mes:{" "}
-          <span className="font-bold capitalize">
+          <span className="font-bold capitalize text-white">
             {mes} {dia}
           </span>
         </p>
       </div>
       <CardBalance />
-      <hr className="border border-gray-300" />
+      <hr className="border border-slate-800" />
       <ListaMovimientos />
-      <hr className="border border-gray-300" />
+      <hr className="border border-slate-800" />
       <FormMovimiento />
     </div>
   );

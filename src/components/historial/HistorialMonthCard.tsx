@@ -33,7 +33,7 @@ const SummaryCard = ({
 );
 
 const EmptyMonthState = () => (
-  <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
+  <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-800/50 px-4 py-5 text-sm text-slate-500">
     A&uacute;n no hay movimientos en este mes.
   </div>
 );
@@ -60,17 +60,17 @@ export const HistorialMonthCard = ({
   const totalOutflows = group.summary.gastos + group.deuda;
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <article className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-800">
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition hover:bg-slate-50 sm:px-5"
+        className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition hover:bg-slate-700 sm:px-5"
       >
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-semibold text-slate-800">{group.label}</h2>
+            <h2 className="text-lg font-semibold text-slate-100">{group.label}</h2>
             {isCurrentMonth ? (
-              <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-600">
+              <span className="rounded-full bg-blue-950/60 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-400">
                 Actual
               </span>
             ) : null}
@@ -88,24 +88,24 @@ export const HistorialMonthCard = ({
       </button>
 
       {isOpen ? (
-        <div className="border-t border-slate-100 bg-slate-50/70 px-4 py-4 sm:px-5">
-          <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+        <div className="border-t border-slate-700 bg-slate-900/60 px-4 py-4 sm:px-5">
+          <div className="rounded-2xl bg-slate-800 p-4 ring-1 ring-slate-700">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
                   Detalle de salidas
                 </p>
-                <h3 className="mt-1 text-base font-semibold text-slate-800">
+                <h3 className="mt-1 text-base font-semibold text-slate-100">
                   Cada gasto y abono a deuda del mes
                 </h3>
               </div>
-              <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
+              <span className="rounded-full bg-rose-950/50 px-3 py-1 text-xs font-semibold text-rose-400">
                 {currencyFormatter.format(totalOutflows)}
               </span>
             </div>
 
             {expenseSummary.length === 0 ? (
-              <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
+              <div className="mt-4 rounded-2xl border border-dashed border-slate-700 bg-slate-800/50 px-4 py-5 text-sm text-slate-500">
                 Este mes no tiene gastos ni abonos a deuda registrados, as&iacute;
                 que todav&iacute;a no hay gr&aacute;fico detallado.
               </div>
@@ -115,7 +115,7 @@ export const HistorialMonthCard = ({
                   <div key={item.id} className="space-y-2">
                     <div className="flex items-center justify-between gap-3 text-sm">
                       <div className="min-w-0">
-                        <p className="truncate font-semibold text-slate-700">
+                        <p className="truncate font-semibold text-slate-200">
                           {item.label}
                         </p>
                         <p className="text-xs text-slate-400">
@@ -123,12 +123,12 @@ export const HistorialMonthCard = ({
                           {item.percentage.toFixed(0)}% de las salidas del mes
                         </p>
                       </div>
-                      <p className="shrink-0 font-semibold text-slate-700">
+                      <p className="shrink-0 font-semibold text-slate-200">
                         {currencyFormatter.format(item.amount)}
                       </p>
                     </div>
 
-                    <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-3 overflow-hidden rounded-full bg-slate-700">
                       <div
                         className={`h-full rounded-full bg-gradient-to-r ${
                           chartBarPalette[index % chartBarPalette.length]
@@ -144,17 +144,17 @@ export const HistorialMonthCard = ({
             )}
           </div>
 
-          <div className="mt-4 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+          <div className="mt-4 overflow-hidden rounded-2xl bg-slate-800 ring-1 ring-slate-700">
             <button
               type="button"
               onClick={() => setIsSummaryOpen((currentState) => !currentState)}
-              className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition hover:bg-slate-50"
+              className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition hover:bg-slate-700"
             >
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
                   Resumen del mes
                 </p>
-                <p className="mt-1 text-sm font-semibold text-slate-700">
+                <p className="mt-1 text-sm font-semibold text-slate-200">
                   Balance: {currencyFormatter.format(group.summary.balance)}
                 </p>
               </div>
@@ -167,36 +167,36 @@ export const HistorialMonthCard = ({
             </button>
 
             {isSummaryOpen ? (
-              <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-4">
+              <div className="border-t border-slate-700 bg-slate-900/50 px-4 py-4">
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                   <SummaryCard
                     title="Ingresos"
                     value={currencyFormatter.format(group.summary.ingresos)}
-                    className="rounded-2xl bg-emerald-50 px-4 py-3 text-emerald-700"
-                    valueClassName="text-emerald-700"
+                    className="rounded-2xl bg-emerald-950/50 px-4 py-3 text-emerald-400"
+                    valueClassName="text-emerald-400"
                   />
                   <SummaryCard
                     title="Gastos"
                     value={currencyFormatter.format(group.summary.gastos)}
-                    className="rounded-2xl bg-rose-50 px-4 py-3 text-rose-700"
-                    valueClassName="text-rose-700"
+                    className="rounded-2xl bg-rose-950/50 px-4 py-3 text-rose-400"
+                    valueClassName="text-rose-400"
                   />
                   <SummaryCard
                     title="Ahorro"
                     value={currencyFormatter.format(group.ahorro)}
-                    className="rounded-2xl bg-cyan-50 px-4 py-3 text-cyan-700"
-                    valueClassName="text-cyan-700"
+                    className="rounded-2xl bg-cyan-950/50 px-4 py-3 text-cyan-400"
+                    valueClassName="text-cyan-400"
                   />
                   <SummaryCard
                     title="Deuda"
                     value={currencyFormatter.format(group.deuda)}
-                    className="rounded-2xl bg-amber-50 px-4 py-3 text-amber-700"
-                    valueClassName="text-amber-700"
+                    className="rounded-2xl bg-amber-950/50 px-4 py-3 text-amber-400"
+                    valueClassName="text-amber-400"
                   />
                   <SummaryCard
                     title="Balance"
                     value={currencyFormatter.format(group.summary.balance)}
-                    className="rounded-2xl bg-slate-900 px-4 py-3 text-white"
+                    className="rounded-2xl bg-slate-950 px-4 py-3 text-white"
                     valueClassName="text-white"
                   />
                 </div>
@@ -204,17 +204,17 @@ export const HistorialMonthCard = ({
             ) : null}
           </div>
 
-          <div className="mt-4 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+          <div className="mt-4 overflow-hidden rounded-2xl bg-slate-800 ring-1 ring-slate-700">
             <button
               type="button"
               onClick={() => setIsMovementsOpen((currentState) => !currentState)}
-              className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition hover:bg-slate-50"
+              className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition hover:bg-slate-700"
             >
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
                   Historial de movimientos
                 </p>
-                <p className="mt-1 text-sm font-semibold text-slate-700">
+                <p className="mt-1 text-sm font-semibold text-slate-200">
                   {group.movimientos.length} movimiento
                   {group.movimientos.length === 1 ? "" : "s"}
                 </p>
@@ -228,7 +228,7 @@ export const HistorialMonthCard = ({
             </button>
 
             {isMovementsOpen ? (
-              <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-4">
+              <div className="border-t border-slate-700 bg-slate-900/50 px-4 py-4">
                 <div className="space-y-2">
                   {group.movimientos.length === 0 ? (
                     <EmptyMonthState />
@@ -237,21 +237,21 @@ export const HistorialMonthCard = ({
                       const categoryLabel = getCategoryLabel(movimiento.category);
                       const amountTone =
                         movimiento.type === "income"
-                          ? "text-emerald-600"
+                          ? "text-emerald-400"
                           : movimiento.type === "saving"
-                            ? "text-cyan-700"
+                            ? "text-cyan-400"
                             : movimiento.type === "debt"
-                              ? "text-amber-700"
-                              : "text-rose-700";
+                              ? "text-amber-400"
+                              : "text-rose-400";
                       const sign = movimiento.type === "income" ? "+" : "-";
 
                       return (
                         <div
                           key={movimiento.id}
-                          className="flex flex-col gap-2 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100 sm:flex-row sm:items-center sm:justify-between"
+                          className="flex flex-col gap-2 rounded-2xl bg-slate-700/60 px-4 py-3 ring-1 ring-slate-600 sm:flex-row sm:items-center sm:justify-between"
                         >
                           <div>
-                            <p className="font-semibold text-slate-800">
+                            <p className="font-semibold text-slate-100">
                               {movimiento.description.trim() || categoryLabel}
                             </p>
                             <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
@@ -264,7 +264,7 @@ export const HistorialMonthCard = ({
                           </div>
 
                           <div className="flex items-center justify-between gap-3 sm:justify-end">
-                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
+                            <span className="rounded-full bg-slate-700 px-3 py-1 text-xs font-semibold text-slate-400">
                               {movimiento.date}
                             </span>
                             <span className={`text-sm font-bold ${amountTone}`}>

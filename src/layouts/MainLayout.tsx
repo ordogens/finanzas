@@ -59,13 +59,16 @@ export const MainLayout = ({ children }: Props) => {
   };
 
   return (
-    <div className="flex min-h-screen justify-center bg-gray-100">
-      <div className="w-full max-w-md overflow-hidden rounded-xl bg-gray-200 shadow-lg">
+    <div
+      data-theme="dark"
+      className="flex min-h-screen justify-center bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.16),_transparent_30%),linear-gradient(180deg,#020617_0%,#0f172a_55%,#020617_100%)] px-3 py-3 sm:px-4 sm:py-5"
+    >
+      <div className="w-full max-w-md overflow-hidden rounded-[28px] border border-slate-800/90 bg-slate-900/95 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.9)] ring-1 ring-white/5 backdrop-blur-sm">
         <header className="flex items-center justify-between border-b border-blue-400/60 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 px-4 py-3 shadow-[0_18px_40px_-28px_rgba(37,99,235,0.7)]">
           <div className="flex items-center gap-3">
             <div
               onClick={() => handleNavigate("/")}
-              className="flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-white/35 bg-white shadow-sm"
+              className="flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-white/15 bg-slate-950 shadow-sm ring-1 ring-white/10"
             >
               <img
                 src={monify}
@@ -88,25 +91,25 @@ export const MainLayout = ({ children }: Props) => {
             </button>
 
             {isMenuOpen ? (
-              <div className="absolute right-0 top-14 z-20 w-60 overflow-hidden rounded-3xl border border-slate-200 bg-white p-2 shadow-[0_24px_60px_-28px_rgba(15,23,42,0.45)]">
+              <div className="absolute right-0 top-14 z-20 w-60 overflow-hidden rounded-3xl border border-slate-700 bg-slate-800 p-2 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.6)]">
                 <div className="mb-2 px-3 pt-2">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
                     Menu
                   </p>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-slate-400">
                     Muevete por la app o entra a tu cuenta.
                   </p>
                 </div>
 
                 {isAuthenticated && user ? (
-                  <div className="mb-2 rounded-3xl bg-sky-50 px-4 py-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-500">
+                  <div className="mb-2 rounded-3xl bg-sky-950/40 px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-400">
                       Sesion activa
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-slate-800">
+                    <p className="mt-1 text-sm font-semibold text-slate-100">
                       {user.name}
                     </p>
-                    <p className="text-xs text-slate-500">{user.email}</p>
+                    <p className="text-xs text-slate-400">{user.email}</p>
                   </div>
                 ) : null}
 
@@ -119,9 +122,9 @@ export const MainLayout = ({ children }: Props) => {
                         key={item.path}
                         type="button"
                         onClick={() => handleNavigate(item.path)}
-                        className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                        className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold text-slate-200 transition hover:bg-slate-700"
                       >
-                        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-600">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-700 text-slate-300">
                           <Icon size={18} />
                         </span>
                         <span>{item.label}</span>
@@ -133,9 +136,9 @@ export const MainLayout = ({ children }: Props) => {
                     <button
                       type="button"
                       onClick={handleLogout}
-                      className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                      className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold text-slate-200 transition hover:bg-slate-700"
                     >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-950/60 text-rose-400">
                         <LogOut size={18} />
                       </span>
                       <span>Cerrar sesion</span>
@@ -144,9 +147,9 @@ export const MainLayout = ({ children }: Props) => {
                     <button
                       type="button"
                       onClick={handleOpenAuthModal}
-                      className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                      className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold text-slate-200 transition hover:bg-slate-700"
                     >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-100 text-sky-600">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-950/60 text-sky-400">
                         <LogIn size={18} />
                       </span>
                       <span>Iniciar sesion</span>
@@ -158,7 +161,7 @@ export const MainLayout = ({ children }: Props) => {
           </div>
         </header>
 
-        <main className="space-y-4 p-4">{children}</main>
+        <main className="space-y-4 bg-transparent p-4">{children}</main>
       </div>
 
       <AuthModal

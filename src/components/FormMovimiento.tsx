@@ -83,7 +83,7 @@ export const FormMovimiento = () => {
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-6 backdrop-blur-sm"
           onClick={handleBackdropClick}
         >
-          <div className="w-full max-w-md overflow-hidden rounded-[2rem] border border-slate-200 bg-[linear-gradient(160deg,#ffffff_0%,#f8fbff_48%,#eef6ff_100%)] shadow-[0_36px_120px_-40px_rgba(15,23,42,0.55)] ring-1 ring-white/70">
+          <div className="w-full max-w-md overflow-hidden rounded-[2rem] border border-slate-700 bg-slate-900 shadow-[0_36px_120px_-40px_rgba(0,0,0,0.7)]">
             <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 px-5 py-5 text-white">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -110,8 +110,8 @@ export const FormMovimiento = () => {
               </div>
             </div>
 
-            <div className="max-h-[70vh] overflow-y-auto bg-slate-50 px-4 py-4 sm:px-5 sm:py-5">
-              <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+            <div className="max-h-[70vh] overflow-y-auto bg-slate-950 px-4 py-4 sm:px-5 sm:py-5">
+              <div className="rounded-[24px] border border-slate-700 bg-slate-900 p-4 sm:p-5">
                 <MovimientoFormFields
                   key={formKey}
                   initialValues={formInitialValues}
@@ -190,7 +190,7 @@ const MovimientoFormFields = ({
       <div className="space-y-2">
         <label
           htmlFor="tipo"
-          className="block text-sm font-semibold text-slate-700"
+          className="block text-sm font-semibold text-slate-200"
         >
           Tipo
         </label>
@@ -200,7 +200,7 @@ const MovimientoFormFields = ({
           onChange={(event) =>
             handleTypeChange(event.target.value as MovimientoTipo)
           }
-          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-3 text-slate-100 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
         >
           <option value="income">Ingreso</option>
           <option value="expense">Gasto</option>
@@ -217,7 +217,7 @@ const MovimientoFormFields = ({
                 categoria: "ahorro",
               }))
             }
-            className="w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-left text-sm font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100"
+            className="w-full rounded-xl border border-blue-700/50 bg-blue-950/40 px-4 py-3 text-left text-sm font-semibold text-blue-400 transition hover:border-blue-600/60 hover:bg-blue-950/60"
           >
             Registrar aporte a ahorro
           </button>
@@ -230,7 +230,7 @@ const MovimientoFormFields = ({
                 categoria: "abono-deuda",
               }))
             }
-            className="w-full rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-left text-sm font-semibold text-amber-700 transition hover:border-amber-300 hover:bg-amber-100"
+            className="w-full rounded-xl border border-amber-700/50 bg-amber-950/40 px-4 py-3 text-left text-sm font-semibold text-amber-400 transition hover:border-amber-600/60 hover:bg-amber-950/60"
           >
             Registrar abono a deuda
           </button>
@@ -244,7 +244,7 @@ const MovimientoFormFields = ({
       <div className="space-y-2">
         <label
           htmlFor="monto"
-          className="block text-sm font-semibold text-slate-700"
+          className="block text-sm font-semibold text-slate-200"
         >
           Monto
         </label>
@@ -261,7 +261,7 @@ const MovimientoFormFields = ({
               monto: event.target.value,
             }))
           }
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
         />
         {submitted && (values.monto.trim() === "" || Number(values.monto) <= 0) ? (
           <p className="text-sm text-red-500">Ingresa un monto v&aacute;lido.</p>
@@ -271,7 +271,7 @@ const MovimientoFormFields = ({
       <div className="space-y-2">
         <label
           htmlFor="categoria"
-          className="block text-sm font-semibold text-slate-700"
+          className="block text-sm font-semibold text-slate-200"
         >
           Categor&iacute;a
         </label>
@@ -284,7 +284,7 @@ const MovimientoFormFields = ({
               categoria: event.target.value,
             }))
           }
-          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-700 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-3 text-slate-100 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
         >
           <option value="">Seleccionar categor&iacute;a</option>
           {categoryOptions.map((option) => (
@@ -304,7 +304,7 @@ const MovimientoFormFields = ({
       <div className="space-y-2">
         <label
           htmlFor="descripcion"
-          className="block text-sm font-semibold text-slate-700"
+          className="block text-sm font-semibold text-slate-200"
         >
           Descripci&oacute;n
         </label>
@@ -319,7 +319,7 @@ const MovimientoFormFields = ({
               descripcion: event.target.value,
             }))
           }
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
         />
       </div>
 
@@ -338,7 +338,7 @@ const MovimientoFormFields = ({
               onCancel();
               setSubmitted(false);
             }}
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition hover:bg-slate-50"
+            className="w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-3 text-base font-semibold text-slate-200 transition hover:bg-slate-700"
           >
             Cancelar
           </button>

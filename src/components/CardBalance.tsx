@@ -121,16 +121,20 @@ export const CardBalance = () => {
     {
       title: "Ingresos",
       amount: formatCurrency(summary.ingresos),
-      bgClass: "from-green-400 to-green-500",
-      iconBgClass: "bg-green-300/30",
+      bgClass: "from-emerald-400 via-teal-400 to-cyan-500",
+      iconBgClass: "bg-white/22",
+      borderClass: "border border-emerald-100/40",
+      shadowClass: "shadow-[0_22px_48px_-24px_rgba(16,185,129,0.78)]",
       icon: "wallet" as const,
       layoutClass: "min-h-[148px]",
     },
     {
       title: "Gastos",
       amount: formatCurrency(summary.gastos),
-      bgClass: "from-red-400 to-red-500",
-      iconBgClass: "bg-red-300/30",
+      bgClass: "from-rose-600 via-pink-700 to-[#8f123f]",
+      iconBgClass: "bg-white/18",
+      borderClass: "border border-rose-100/28",
+      shadowClass: "shadow-[0_22px_48px_-24px_rgba(190,24,93,0.76)]",
       icon: "cart" as const,
       layoutClass: "min-h-[148px]",
     },
@@ -217,20 +221,20 @@ export const CardBalance = () => {
             key={card.title}
             className={
               card.title === "Balance Actual"
-                ? `overflow-hidden rounded-[22px] border border-blue-200 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 ${card.layoutClass} px-4 py-4 text-white shadow-[0_18px_40px_-28px_rgba(37,99,235,0.7)] transition-transform duration-200 hover:-translate-y-0.5 sm:px-6 sm:py-5`
-                : `rounded-xl bg-gradient-to-br ${card.bgClass} ${card.layoutClass} px-3 py-3 text-white shadow-md transition-transform duration-200 hover:-translate-y-0.5 sm:px-5 sm:py-4`
+                ? `overflow-hidden rounded-[22px] border border-blue-100/45 bg-gradient-to-br from-[#2848f0] via-[#2339de] to-[#1f2cc2] ${card.layoutClass} px-4 py-4 text-white shadow-[0_22px_48px_-26px_rgba(35,57,222,0.72)] transition-transform duration-200 hover:-translate-y-0.5 sm:px-6 sm:py-5`
+                : `rounded-xl bg-gradient-to-br ${card.bgClass} ${card.borderClass ?? ""} ${card.shadowClass ?? "shadow-md"} ${card.layoutClass} px-3 py-3 text-white transition-transform duration-200 hover:-translate-y-0.5 sm:px-5 sm:py-4`
             }
           >
             {card.title === "Balance Actual" ? (
               <div className="flex h-full flex-col justify-center">
-                <div className="flex items-center gap-4 text-blue-100">
-                  <div className="h-px flex-1 bg-white/30" />
+                <div className="flex items-center gap-4 text-white/80">
+                  <div className="h-px flex-1 bg-white/20" />
                   <div
-                    className={`flex h-11 w-11 items-center justify-center rounded-2xl ${card.iconBgClass} text-white shadow-inner ring-1 ring-white/15`}
+                    className={`flex h-11 w-11 items-center justify-center rounded-2xl ${card.iconBgClass} text-white shadow-inner ring-1 ring-white/10`}
                   >
                     {iconMap[card.icon]}
                   </div>
-                  <div className="h-px flex-1 bg-white/30" />
+                  <div className="h-px flex-1 bg-white/20" />
                 </div>
 
                 <h3 className="mt-3 text-center text-lg font-bold text-white sm:text-[1.45rem]">
@@ -251,7 +255,7 @@ export const CardBalance = () => {
 
                 <h3 className="text-sm font-semibold sm:text-base">{card.title}</h3>
 
-                <div className="my-3 h-px w-full bg-white/30" />
+                <div className="my-3 h-px w-full bg-white/20" />
 
                 <p className="text-lg font-bold leading-none tracking-tight sm:text-[1.5rem]">
                   {card.amount}
@@ -262,32 +266,32 @@ export const CardBalance = () => {
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-[28px] border border-slate-800 bg-slate-950/90 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.9)] ring-1 ring-white/5 backdrop-blur-sm">
         <button
           type="button"
           onClick={() => setIsGoalsOpen((currentState) => !currentState)}
           aria-expanded={isGoalsOpen}
-          className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition hover:bg-slate-50 sm:px-5"
+          className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition hover:bg-slate-900 sm:px-5"
         >
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
               Objetivos
             </p>
-            <h3 className="mt-1 text-xl font-bold text-slate-800">
+            <h3 className="mt-1 text-xl font-bold text-slate-100">
               Ahorro y pago de deuda
             </h3>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-400">
               {formatCurrency(ahorro.restante)} pendientes en ahorro y{" "}
               {formatCurrency(deuda.restante)} por pagar.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500 sm:block">
+            <div className="hidden rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-semibold text-slate-400 sm:block">
               {isGoalsOpen ? "Ocultar" : "Ver detalles"}
             </div>
             <ChevronDown
-              className={`h-5 w-5 shrink-0 text-slate-400 transition-transform ${
+              className={`h-5 w-5 shrink-0 text-slate-500 transition-transform ${
                 isGoalsOpen ? "rotate-180" : ""
               }`}
             />
@@ -295,7 +299,7 @@ export const CardBalance = () => {
         </button>
 
         {isGoalsOpen ? (
-          <div className="border-t border-slate-200 bg-slate-50/70 p-4 sm:p-5">
+          <div className="border-t border-slate-800 bg-slate-950/70 p-4 sm:p-5">
             <div className="grid gap-4 lg:grid-cols-2">
               {goalCards.map((card) => (
                 <article
@@ -372,11 +376,11 @@ export const CardBalance = () => {
                             onChange={(event) =>
                               card.setInputValue(event.target.value)
                             }
-                            className={`w-full rounded-xl border border-white/15 bg-white px-4 py-2.5 text-slate-700 outline-none transition placeholder:text-slate-400 focus:ring-2 ${card.focusClass}`}
+                            className={`w-full rounded-xl border border-white/15 bg-slate-950/65 px-4 py-2.5 text-white outline-none transition placeholder:text-slate-400 focus:ring-2 ${card.focusClass}`}
                           />
                           <button
                             type="submit"
-                            className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-950"
+                            className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-black"
                           >
                             Guardar
                           </button>

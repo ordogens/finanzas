@@ -22,11 +22,11 @@ export const Historial = () => {
   return (
     <section className="space-y-5">
       <div className="space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
           Resumen mensual
         </p>
-        <h1 className="text-2xl font-bold text-slate-800">Historial</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-slate-100">Historial</h1>
+        <p className="text-sm text-slate-400">
           Cada mes se agrega autom&aacute;ticamente y el actual queda visible para
           seguir tu balance al d&iacute;a.
         </p>
