@@ -75,7 +75,7 @@ export const FormMovimiento = () => {
   return (
     <>
       <section
-        className="relative z-20 -mt-7 mb-[-1.125rem] flex justify-end pr-3 sm:fixed sm:bottom-6 sm:right-6 sm:mt-0 sm:mb-0 sm:pr-0"
+        className="sticky top-[23rem] z-20 -mt-7 mb-[-1.125rem] flex justify-end pr-3 sm:fixed sm:bottom-6 sm:right-6 sm:top-auto sm:mt-0 sm:mb-0 sm:pr-0"
       >
         {!isOpen ? (
           <button
