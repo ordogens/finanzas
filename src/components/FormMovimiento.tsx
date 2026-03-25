@@ -24,6 +24,7 @@ export const FormMovimiento = () => {
   const { addMovimiento, updateMovimiento, editingMovimiento, cancelEditing } =
     useFinanzas();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [mobileScrollLift, setMobileScrollLift] = useState(0);
   const isEditing = editingMovimiento !== null;
   const formKey = editingMovimiento ? `edit-${editingMovimiento.id}` : "new";
   const formInitialValues = editingMovimiento
@@ -58,6 +59,31 @@ export const FormMovimiento = () => {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const updateMobileScrollLift = () => {
+      if (window.innerWidth >= 640) {
+        setMobileScrollLift(0);
+        return;
+      }
+
+      // Lift the FAB as the user scrolls so it stays easier to reach on mobile.
+      setMobileScrollLift(Math.min(window.scrollY * 0.18, 72));
+    };
+
+    updateMobileScrollLift();
+    window.addEventListener("scroll", updateMobileScrollLift, { passive: true });
+    window.addEventListener("resize", updateMobileScrollLift);
+
+    return () => {
+      window.removeEventListener("scroll", updateMobileScrollLift);
+      window.removeEventListener("resize", updateMobileScrollLift);
+    };
+  }, []);
+
   const handleClose = () => {
     if (isEditing) {
       cancelEditing();
@@ -74,7 +100,12 @@ export const FormMovimiento = () => {
 
   return (
     <>
-      <section className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
+      <section
+        className="fixed right-4 z-50 bottom-[calc(env(safe-area-inset-bottom)+1rem)] transition-transform duration-300 ease-out sm:bottom-6 sm:right-6 sm:translate-y-0"
+        style={{
+          transform: `translate3d(0, -${mobileScrollLift}px, 0)`,
+        }}
+      >
         {!isOpen ? (
           <button
             type="button"
