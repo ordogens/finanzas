@@ -1,0 +1,16 @@
+export const categoryIconMap: Record<string, string> = {
+  salario: "wallet",
+  freelance: "wallet",
+  ahorro: "wallet",
+  "abono-deuda": "wallet",
+  ventas: "wallet",
+  "otros-ingresos": "wallet",
+  supermercado: "basket",
+  moto: "car",
+  transporte: "car",
+  entretenimiento: "game",
+  servicios: "basket",
+  arriendo: "basket",
+  deudas: "basket",
+  Rappi: "wallet",
+};
